@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bed14d325c653da4b816902e6821e938, type: 3}
+  m_Name: Scope
+  m_EditorClassIdentifier: Assembly-CSharp::Attachment
+  itemId: 23
+  itemName: Scope
+  icon: {fileID: 21300000, guid: 5528f03a87b85a04695257a26f297859, type: 3}
+  itemType: 3
+  attachmentType: 0
+  partsType: 2
+  StatusDatas:
+  - StatusType: 2
+    Value: 5

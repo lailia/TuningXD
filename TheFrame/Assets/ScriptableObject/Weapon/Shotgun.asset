@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1188c0e63829aa24fa6c288138b7b22b, type: 3}
+  m_Name: Shotgun
+  m_EditorClassIdentifier: Assembly-CSharp::Weapon
+  itemId: 2
+  itemName: Shotgun
+  icon: {fileID: 21300000, guid: 91f40c184af957c4da5ac35c167ccb32, type: 3}
+  itemType: 1
+  weaponType: 1
+  Damage: 20
+  Rpm: 200
+  Recoil: 70
+  Accuracy: 30
+  Magazine: 8
+  Pellet: 8
+  Range: 15
+  ReloadTime: 1
+  Noise: 3
