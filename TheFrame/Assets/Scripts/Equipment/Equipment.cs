@@ -20,7 +20,7 @@ public class Equipment : MonoBehaviour
 
     public ItemInstance changeItem;
 
-    public Player playerStats;
+    public Player player;
 
     public void SetItem(ItemInstance item)
     {
@@ -32,7 +32,7 @@ public class Equipment : MonoBehaviour
             }
 
             mainWeapon = weapon;
-            playerStats.WeaponSet(mainWeapon);
+            player.WeaponSet(mainWeapon);
         }
         else if (item is ArmorInstance armor)
         {
@@ -42,7 +42,7 @@ public class Equipment : MonoBehaviour
             }
 
             bodyArmor = armor;
-            playerStats.ArmorSet(bodyArmor);
+            player.ArmorSet(bodyArmor);
         }
         ChangeImage();
     }
@@ -65,14 +65,14 @@ public class Equipment : MonoBehaviour
             mainWeapon = null;
             mainWeaponImage.sprite = mainWeaponDefaultSprite;
             mainWeaponImage.color = baseColor;
-            playerStats.WeaponSet(mainWeapon);
+            player.WeaponSet(mainWeapon);
         }
         else if (item.Data.itemType==ItemType.armor)
         {
             bodyArmor = null;
             bodyArmorImage.sprite = bodyArmorDefaultSprite;
             bodyArmorImage.color = baseColor;
-            playerStats.ArmorSet(bodyArmor);
+            player.ArmorSet(bodyArmor);
         }
     }
 
