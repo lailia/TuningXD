@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
 
     public bool IsEquipWeapon { get; private set; }
 
+    public WeaponController weaponController;
+
     void Start()
     {
         
@@ -30,12 +32,14 @@ public class Player : MonoBehaviour
         if (weapon!=null)
         {
             this.Weapon = weapon;
+            weaponController.WeaponSet(Weapon);
 
             IsEquipWeapon = true;
         }
         else
         {
             this.Weapon = null;
+            weaponController.WeaponSet(Weapon);
 
             IsEquipWeapon = false;
         }

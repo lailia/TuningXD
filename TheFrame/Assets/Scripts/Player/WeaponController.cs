@@ -183,12 +183,21 @@ public class WeaponController : MonoBehaviour
 
     public void Reloaded()
     {
-        reload += Time.deltaTime;
-        if (reload >= Weapon.FinalReloadTime())
+        if(weapon.weapon!=null)
         {
-            Weapon.Reload();
-            reload = 0f;
-            reloadText.gameObject.SetActive(false);
+            reload += Time.deltaTime;
+            if (reload >= Weapon.FinalReloadTime())
+            {
+                Weapon.Reload();
+                reload = 0f;
+                reloadText.gameObject.SetActive(false);
+            }
         }
+    }
+
+    //무기 세팅
+    public void WeaponSet(WeaponInstance weapon)
+    {
+        this.weapon = weapon;
     }
 }
