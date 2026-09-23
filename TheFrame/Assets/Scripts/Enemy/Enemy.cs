@@ -123,35 +123,51 @@ public class Enemy : MonoBehaviour
                 PatrolMission();
                 break;
             case EnemyMission.search:
+                SearchMission();
                 break;
             case EnemyMission.watchGuard:
                 break;
             case EnemyMission.battle:
                 break;
         }
-        
+
+        //스테이트를 넣은 이유
+        switch (state)
+        {
+            case EnemyMission.patrol:
+                PatrolMission();
+                break;
+            case EnemyMission.search:
+                SearchMission();
+                break;
+            case EnemyMission.watchGuard:
+                break;
+            case EnemyMission.battle:
+                break;
+        }
+
         //if(순찰 임무)
         //{
-                // 순찰 임무에 대한 코드(ex. 순찰 지점으로 이동)
-                // navMe
+        // 순찰 임무에 대한 코드(ex. 순찰 지점으로 이동)
+        // navMe
 
-                // 탐색, 전투
-                //if(소리를 들었다)
-                //  mission = 탐색 임무;
+        // 탐색, 전투
+        //if(소리를 들었다)
+        //  mission = 탐색 임무;
 
-                //if(플레이어를 발견)
-                //  mission = 전투 임무;
+        //if(플레이어를 발견)
+        //  mission = 전투 임무;
         //}
         //else if(탐색 임무)
         //{
-            
+
         //}
         //else if(전투 임무)
         //{
-                //  플레이어를 향해 조준!
-                //
-                //  if(플레이어를 놓침!)
-                //      mission = 순찰 임무
+        //  플레이어를 향해 조준!
+        //
+        //  if(플레이어를 놓침!)
+        //      mission = 순찰 임무
         //}
     }
 
@@ -160,10 +176,11 @@ public class Enemy : MonoBehaviour
         switch (state)
         {
             case EnemyState.round:
+
                 UpdateRound();
                 break;
             case EnemyState.alert:
-                UpdateAlert();
+                UpdateAlert(EnemyState.round, EnemyMission.patrol);
                 break;
         }
     }
@@ -172,19 +189,23 @@ public class Enemy : MonoBehaviour
     {
         switch (state)
         {
+            //여기서 상태 기능을 실행하는게 아니라 시작이나 끝나는 조건을 넣어서 관리하는걸 생각
             case EnemyState.watch:
+                UpdateWatch();
                 break;
             case EnemyState.movement:
+                UpdateMovement();
                 break;
             case EnemyState.alert:
+                UpdateAlert(EnemyState.round, EnemyMission.patrol);
                 break;
         }
     }
 
-    //순회 상태 행동
+    //순찰 미션--------------------------------------------------------------------------
     void UpdateRound()
     {
-        //순회 상태부터------------------------------------------------------------------
+        //네비메쉬 에이전트가 목표 위치 계산 중인지, 목표 위치가 정해졌는지, 목표 위치와의 거리가 정지 거리보다 작은지 확인
         if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
         {
             if (patrolIndex == patrolPoint.Count - 1)
@@ -208,7 +229,7 @@ public class Enemy : MonoBehaviour
     }
 
     //경계 상태 행동
-    void UpdateAlert()
+    void UpdateAlert(EnemyState changeState, EnemyMission changeMission)
     {
         //목 트랜스폼이 회전하면 감각콜리더도 같이 회전
         alertTime -= Time.deltaTime;
@@ -226,21 +247,50 @@ public class Enemy : MonoBehaviour
             agent.SetDestination(patrolPoint[patrolIndex]);
             agent.isStopped = false;
             ani.SetFloat("Y", 1f);
-            state = EnemyState.round;
+            state = changeState;
+            mission = changeMission;
         }
     }
 
+    //탐색 미션----------------------------------------------------------------------------
     //주시 상태 행동
     void UpdateWatch()
     {
+        ani.SetFloat("Y", 1f);
+        Vector3 soundDir = (soundHeardPos - transform.position).normalized;
+        Quaternion targetRotation = Quaternion.LookRotation(soundDir);
 
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 3f * Time.deltaTime);
+
+        float angle = Quaternion.Angle(transform.rotation, targetRotation);
+
+        //만약 소리가 들린 방향과 현재 바라보는 방향의 차이가 1도 미만이면 state를 movement로 바꿈
+        if (angle < 1f)
+        {
+            state = EnemyState.movement;
+            agent.SetDestination(soundHeardPos);
+            agent.isStopped = false;
+        }
     }
 
     //이동 상태 행동
     void UpdateMovement()
     {
-
+        if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            state = EnemyState.alert;
+            agent.isStopped = true;
+            ani.SetFloat("Y", 0f);
+        }
     }
 
+    public void HasHeardSound(Vector3 heardSoundPos)
+    {
+        agent.isStopped = true;
+        state = EnemyState.watch;
+        mission = EnemyMission.search;
+        isSoundHeard = true;
+        soundHeardPos = heardSoundPos;
+    }
 
 }

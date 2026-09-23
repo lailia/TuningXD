@@ -24,42 +24,37 @@ public class SoundManager : MonoBehaviour
     public AudioClip[] footstepClip;
     public AudioClip bgmClip;
 
-    private int footstepCount;
-
     [SerializeField]
     private AudioSource sfxSource;
     [SerializeField]
     private AudioSource bgmSource;
 
-    public void FireSoundPlay(AudioSource _sfxSource)
+    public void PlayBGM(AudioClip clip)
     {
-        sfxSource = _sfxSource;
-        sfxSource.clip = fireClip;
-        sfxSource.Play();
+        if (bgmSource == null || clip == null) return;
+        bgmSource.clip = clip;
+        bgmSource.loop = true;
+        bgmSource.Play();
     }
 
-    public void ReloadSoundPlay(AudioSource _sfxSource)
+    public void PlaySFX(Vector3 sourcePos, float radius, AudioClip clip)
     {
-        sfxSource = _sfxSource;
-        sfxSource.clip = reloadClip;
-        sfxSource.Play();
-    }
+        if (sfxSource == null || clip == null)
+        {
+            Debug.Log("소리 출력 실패");
+            return;
+        }
+        sfxSource.PlayOneShot(clip);
 
-    public void FootStepSoundPlay(AudioSource _sfxSource)
-    {
-        sfxSource = _sfxSource;
-        sfxSource.clip = footstepClip[footstepCount];
-        sfxSource.Play();
-        footstepCount++;
-        if (footstepCount >= footstepClip.Length)
-            footstepCount = 0;
-    }
+        LayerMask enemyLayer = LayerMask.NameToLayer("Enemy");
+        int layermask = (1 << enemyLayer);
 
-    public void BGMSoundPlay(AudioSource _sfxSource)
-    {
-        sfxSource = _sfxSource;
-        sfxSource.clip = bgmClip;
-        sfxSource.Play();
-    }
+        Collider[] hitColliders = Physics.OverlapSphere(sourcePos, radius, layermask);
 
+        foreach (Collider collider in hitColliders)
+        {
+            Enemy enemy = collider.GetComponent<Enemy>();
+            enemy.HasHeardSound(sourcePos);
+        }
+    }
 }

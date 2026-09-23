@@ -125,7 +125,7 @@ public class WeaponController : MonoBehaviour
             bh.EffectPlay();
         }
 
-        SoundManager.Instance.FireSoundPlay(audioSource);
+        SoundManager.Instance.MakePlayerNoise(transform.position, 20f, SoundManager.Instance.fireClip);
 
         // GameObject bObj = poolManager.GetObject(bulletPrefab);
         GameObject bObj = poolManager.GetObject(bulletPrefab, out ObjectPool<GameObject> pool);
