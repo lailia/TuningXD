@@ -37,7 +37,7 @@ public class SoundManager : MonoBehaviour
         bgmSource.Play();
     }
 
-    public void PlaySFX(Vector3 sourcePos, float radius, AudioClip clip)
+    public void PlaySFX(AudioClip clip)
     {
         if (sfxSource == null || clip == null)
         {
@@ -46,15 +46,16 @@ public class SoundManager : MonoBehaviour
         }
         sfxSource.PlayOneShot(clip);
 
-        LayerMask enemyLayer = LayerMask.NameToLayer("Enemy");
-        int layermask = (1 << enemyLayer);
+    }
 
-        Collider[] hitColliders = Physics.OverlapSphere(sourcePos, radius, layermask);
+    int footStepCount = 0;
 
-        foreach (Collider collider in hitColliders)
-        {
-            Enemy enemy = collider.GetComponent<Enemy>();
-            enemy.HasHeardSound(sourcePos);
-        }
+    public AudioClip FootStepClips()
+    {
+        footStepCount++;
+        if (footStepCount == footstepClip.Length)
+            footStepCount = 0;
+
+        return footstepClip[footStepCount];
     }
 }

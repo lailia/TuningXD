@@ -134,15 +134,25 @@ public class Enemy : MonoBehaviour
         //스테이트를 넣은 이유
         switch (state)
         {
-            case EnemyMission.patrol:
-                PatrolMission();
+            case EnemyState.alert:
+                //UpdateAlert();
                 break;
-            case EnemyMission.search:
-                SearchMission();
+            case EnemyState.round:
+                UpdateRound();
                 break;
-            case EnemyMission.watchGuard:
+            case EnemyState.watch:
+                UpdateWatch();
                 break;
-            case EnemyMission.battle:
+            case EnemyState.movement:
+                UpdateMovement();
+                break;
+            case EnemyState.attack:
+                break;
+            case EnemyState.reload:
+                break;
+            case EnemyState.tracking:
+                break;
+            case EnemyState.lastLocationWatch:
                 break;
         }
 
@@ -176,7 +186,6 @@ public class Enemy : MonoBehaviour
         switch (state)
         {
             case EnemyState.round:
-
                 UpdateRound();
                 break;
             case EnemyState.alert:
@@ -257,10 +266,10 @@ public class Enemy : MonoBehaviour
     void UpdateWatch()
     {
         ani.SetFloat("Y", 1f);
-        Vector3 soundDir = (soundHeardPos - transform.position).normalized;
+        Vector3 soundDir = soundHeardPos - transform.position;
         Quaternion targetRotation = Quaternion.LookRotation(soundDir);
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 3f * Time.deltaTime);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
 
         float angle = Quaternion.Angle(transform.rotation, targetRotation);
 
@@ -284,8 +293,15 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void HasHeardSound(Vector3 heardSoundPos)
+    public void HasHeardSound(Vector3 heardSoundPos, noiseType type)
     {
+        switch(type)
+        {
+            case noiseType.run:
+                break;
+            case noiseType.fire:
+                break;
+        }
         agent.isStopped = true;
         state = EnemyState.watch;
         mission = EnemyMission.search;

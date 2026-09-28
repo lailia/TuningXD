@@ -125,7 +125,7 @@ public class WeaponController : MonoBehaviour
             bh.EffectPlay();
         }
 
-        SoundManager.Instance.MakePlayerNoise(transform.position, 20f, SoundManager.Instance.fireClip);
+        SoundManager.Instance.PlaySFX(SoundManager.Instance.fireClip);
 
         // GameObject bObj = poolManager.GetObject(bulletPrefab);
         GameObject bObj = poolManager.GetObject(bulletPrefab, out ObjectPool<GameObject> pool);
@@ -170,13 +170,16 @@ public class WeaponController : MonoBehaviour
 
     public bool ReloadCheck()
     {
-        if (Weapon.Shoot())
+        if (Weapon.CurrentMagazine > 0)
+        {
+            Weapon.Shoot();
             return true;
+        }
         else
         {
             reloadText.text = $"Reload...";
             reloadText.gameObject.SetActive(true);
-            reload = 0f;
+            //reload = 0f;
             return false;
         }
     }
