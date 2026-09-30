@@ -7409,10 +7409,10 @@ MonoBehaviour:
   agent: {fileID: 626226172}
   patrolIndex: 0
   patrolCheck: 1
-  senseCollider: {fileID: 956007439}
-  neckRotationSpeed: 2
+  detectionCollider: {fileID: 956007439}
+  detectionZone: {fileID: 0}
   viewDistance: 10
-  soundHeardPos: {x: 0, y: 0, z: 0}
+  noiseHeardPos: {x: 0, y: 0, z: 0}
   targetTransform: {fileID: 0}
   ani: {fileID: 1226136169}
 --- !u!195 &626226172
@@ -9498,7 +9498,7 @@ GameObject:
   - component: {fileID: 956007440}
   - component: {fileID: 956007439}
   m_Layer: 0
-  m_Name: Sense
+  m_Name: DitectionZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9833,6 +9833,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b793d6dca9676e343852a211a0df76a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoiseManager
+  colliders: []
 --- !u!4 &992903967
 Transform:
   m_ObjectHideFlags: 0
@@ -18169,7 +18170,7 @@ GameObject:
   - component: {fileID: 1830260233}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

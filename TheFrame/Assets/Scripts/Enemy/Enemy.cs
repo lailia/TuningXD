@@ -7,7 +7,8 @@ enum EnemyMission
     patrol,
     search,
     watchGuard,
-    battle
+    normalBattle,
+    stationaryBattle
 }
 
 public enum EnemyState
@@ -53,20 +54,18 @@ public class Enemy : MonoBehaviour
 
     //감각------------------------------------------
     //감각 범위
-    public SphereCollider senseCollider;
+    public SphereCollider detectionCollider;
+    public EnemyDetectionZone detectionZone;
 
     //시야각(120도)
     private float fov = 60f;
-
-    //시야 회전 속도
-    public float neckRotationSpeed;
 
     //시야 거리
     public float viewDistance;
 
     //소리 감지
-    private bool isSoundHeard;
-    public Vector3 soundHeardPos;
+    private bool isNoiseHeard;
+    public Vector3 noiseHeardPos;
 
     //경계---------------------------------------
     //경계 지속 시간
@@ -91,9 +90,6 @@ public class Enemy : MonoBehaviour
     //시야 감지
     //소리 감지
 
-    //★우선적으로 해야 할 것 : 경계, 순회
-
-
     void Start()
     {
         Init();
@@ -112,7 +108,7 @@ public class Enemy : MonoBehaviour
         agent.SetDestination(patrolPoint[patrolIndex]);
         ani.SetFloat("Y", 1f);
 
-        senseCollider.radius = viewDistance;
+        detectionCollider.radius = viewDistance;
     }
 
     void Update()
@@ -120,14 +116,23 @@ public class Enemy : MonoBehaviour
         switch(mission)
         {
             case EnemyMission.patrol:
-                PatrolMission();
+                if (isNoiseHeard)
+                {
+                    mission = EnemyMission.search;
+                    state = EnemyState.watch;
+                    isNoiseHeard = false;
+                }
                 break;
             case EnemyMission.search:
-                SearchMission();
+                if (isNoiseHeard)
+                {
+                    state = EnemyState.watch;
+                    isNoiseHeard = false;
+                }
                 break;
             case EnemyMission.watchGuard:
                 break;
-            case EnemyMission.battle:
+            case EnemyMission.normalBattle:
                 break;
         }
 
@@ -135,7 +140,7 @@ public class Enemy : MonoBehaviour
         switch (state)
         {
             case EnemyState.alert:
-                //UpdateAlert();
+                UpdateAlert();
                 break;
             case EnemyState.round:
                 UpdateRound();
@@ -181,36 +186,6 @@ public class Enemy : MonoBehaviour
         //}
     }
 
-    void PatrolMission()
-    {
-        switch (state)
-        {
-            case EnemyState.round:
-                UpdateRound();
-                break;
-            case EnemyState.alert:
-                UpdateAlert(EnemyState.round, EnemyMission.patrol);
-                break;
-        }
-    }
-
-    void SearchMission()
-    {
-        switch (state)
-        {
-            //여기서 상태 기능을 실행하는게 아니라 시작이나 끝나는 조건을 넣어서 관리하는걸 생각
-            case EnemyState.watch:
-                UpdateWatch();
-                break;
-            case EnemyState.movement:
-                UpdateMovement();
-                break;
-            case EnemyState.alert:
-                UpdateAlert(EnemyState.round, EnemyMission.patrol);
-                break;
-        }
-    }
-
     //순찰 미션--------------------------------------------------------------------------
     void UpdateRound()
     {
@@ -233,31 +208,40 @@ public class Enemy : MonoBehaviour
 
             agent.isStopped = true;
             ani.SetFloat("Y", 0f);
+
             state = EnemyState.alert;
         }
     }
 
     //경계 상태 행동
-    void UpdateAlert(EnemyState changeState, EnemyMission changeMission)
+    void UpdateAlert()
     {
-        //목 트랜스폼이 회전하면 감각콜리더도 같이 회전
+        //목 트랜스폼이 회전하면 감각콜리더의 감지 각도 증가
         alertTime -= Time.deltaTime;
         if (alertTime > 0f)
         {
-            float rotY = Mathf.Sin(Time.time * neckRotationSpeed) * fov;
-
-            senseCollider.transform.localRotation = Quaternion.Euler(0f, rotY, 0f);
+            //감각 콜리더 감지 각도 증가
         }
         else if (alertTime <= 0f)
         {
-            senseCollider.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+            //감각 콜리더 감지 각도 원상 복귀
 
             alertTime = 5f;
             agent.SetDestination(patrolPoint[patrolIndex]);
             agent.isStopped = false;
             ani.SetFloat("Y", 1f);
-            state = changeState;
-            mission = changeMission;
+
+            switch (mission)
+            {
+                case EnemyMission.patrol:
+                case EnemyMission.search:
+                    mission = EnemyMission.patrol;
+                    state = EnemyState.round;
+                    break;
+                case EnemyMission.watchGuard:
+                    state = EnemyState.watch;
+                    break;
+            }
         }
     }
 
@@ -266,7 +250,7 @@ public class Enemy : MonoBehaviour
     void UpdateWatch()
     {
         ani.SetFloat("Y", 1f);
-        Vector3 soundDir = soundHeardPos - transform.position;
+        Vector3 soundDir = noiseHeardPos - transform.position;          
         Quaternion targetRotation = Quaternion.LookRotation(soundDir);
 
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
@@ -276,9 +260,10 @@ public class Enemy : MonoBehaviour
         //만약 소리가 들린 방향과 현재 바라보는 방향의 차이가 1도 미만이면 state를 movement로 바꿈
         if (angle < 1f)
         {
-            state = EnemyState.movement;
-            agent.SetDestination(soundHeardPos);
+            agent.SetDestination(noiseHeardPos);
             agent.isStopped = false;
+            alertTime = 5f;
+            state = EnemyState.movement;
         }
     }
 
@@ -287,13 +272,13 @@ public class Enemy : MonoBehaviour
     {
         if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
         {
-            state = EnemyState.alert;
             agent.isStopped = true;
             ani.SetFloat("Y", 0f);
+            state = EnemyState.alert;
         }
     }
 
-    public void HasHeardSound(Vector3 heardSoundPos, noiseType type)
+    public void HeardNoise(Vector3 heardSoundPos, noiseType type)
     {
         switch(type)
         {
@@ -303,10 +288,14 @@ public class Enemy : MonoBehaviour
                 break;
         }
         agent.isStopped = true;
-        state = EnemyState.watch;
-        mission = EnemyMission.search;
-        isSoundHeard = true;
-        soundHeardPos = heardSoundPos;
+        isNoiseHeard = true;
+        noiseHeardPos = heardSoundPos;
     }
 
+    //시야 감지 기능 추가
+    void SightDetect()
+    {
+        //시야 감지 코드 작성
+        targetTransform = detectionZone.targetTransform;
+    }
 }

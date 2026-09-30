@@ -25,6 +25,8 @@ public class NoiseManager : MonoBehaviour
     private static NoiseManager instance;
     public static NoiseManager Instance => instance;
 
+    public Collider[] colliders = new Collider[10];
+
     void Awake()
     {
         if (instance == null)
@@ -41,7 +43,7 @@ public class NoiseManager : MonoBehaviour
         foreach (Collider collider in hitColliders)
         {
             Enemy enemy = collider.GetComponent<Enemy>();
-            enemy.HasHeardSound(noiseData.position, noiseData.type);
+            enemy.HeardNoise(noiseData.position, noiseData.type);
         }
     }
 }
