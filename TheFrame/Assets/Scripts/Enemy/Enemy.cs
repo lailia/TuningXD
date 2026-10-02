@@ -35,6 +35,8 @@ public class Enemy : MonoBehaviour
     private float reduce;
 
     //주 무기
+    public Weapon weaponData;
+    [SerializeField]
     private WeaponInstance weapon;
 
     //상태
@@ -43,39 +45,32 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private EnemyState state;
 
-    //이동 관련----------------------------------------------------
-    //순찰 지점
-    public List<Vector3> patrolPoint;
-
     //네비메쉬
     public NavMeshAgent agent;
-    public int patrolIndex;
-    public bool patrolCheck;
 
-    //감각------------------------------------------
+    //애니메이션
+    public Animator ani;
+
     //감각 범위
-    public SphereCollider detectionCollider;
     public EnemyDetectionZone detectionZone;
 
-    //시야각(120도)
-    private float fov = 60f;
-
-    //시야 거리
-    public float viewDistance;
-
     //소리 감지
-    private bool isNoiseHeard;
     public Vector3 noiseHeardPos;
 
-    //경계---------------------------------------
     //경계 지속 시간
     private float alertTime = 5f;
 
-    //타겟--------------------------------------
-    public Transform targetTransform;
+    //순찰 미션 관련----------------------------------------------------
+    //순찰 지점
+    public List<Vector3> patrolPoint;
+    public int patrolIndex;
+    public bool patrolCheck;
 
-    //애니메이션------------------------------------------
-    public Animator ani;
+    //전투 미션 관련--------------------------------------
+    //마지막 위치
+    private Vector3 lastPosition;
+    //private bool is//-----------------------------------------
+    //전투 상태 한번만 실행되는 코드 작성 필요
 
     //적 기능-----------------------------
     //피격
@@ -96,6 +91,7 @@ public class Enemy : MonoBehaviour
         // mission = 순찰 임무;
     }
 
+    //테스트용 임의 설정
     public void Init()
     {
         state = EnemyState.round;
@@ -108,27 +104,44 @@ public class Enemy : MonoBehaviour
         agent.SetDestination(patrolPoint[patrolIndex]);
         ani.SetFloat("Y", 1f);
 
-        detectionCollider.radius = viewDistance;
+        weapon = new WeaponInstance(weaponData);
+        weapon.Init();
+
+        detectionZone.Init(20f);
     }
+
+    //EnemyManager에서 생성할 때 사용하게 상세 설정 가능하게
+    //public void Init(List<Vector3> patrolPoint, float viewDistance, WeaponInstance weapon)
+    //{
+    //    state = EnemyState.round;
+
+    //    this.patrolPoint = patrolPoint;
+
+    //    agent.SetDestination(patrolPoint[patrolIndex]);
+    //    ani.SetFloat("Y", 1f);
+
+    //    this.weapon = weapon;
+
+    //    detectionZone.Init(viewDistance);
+    //}
 
     void Update()
     {
         switch(mission)
         {
             case EnemyMission.patrol:
-                if (isNoiseHeard)
-                {
-                    mission = EnemyMission.search;
-                    state = EnemyState.watch;
-                    isNoiseHeard = false;
-                }
+                //if (detectionZone.isTargetDetected)
+                //{
+                //    mission = EnemyMission.normalBattle;
+                //    state = EnemyState.attack;
+                //}
                 break;
             case EnemyMission.search:
-                if (isNoiseHeard)
-                {
-                    state = EnemyState.watch;
-                    isNoiseHeard = false;
-                }
+                //if (detectionZone.isTargetDetected)
+                //{
+                //    mission = EnemyMission.normalBattle;
+                //    state = EnemyState.attack;
+                //}
                 break;
             case EnemyMission.watchGuard:
                 break;
@@ -278,6 +291,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void UpdateAttack()
+    {
+        
+    }
+
     public void HeardNoise(Vector3 heardSoundPos, noiseType type)
     {
         switch(type)
@@ -289,13 +307,31 @@ public class Enemy : MonoBehaviour
         }
         agent.isStopped = true;
         isNoiseHeard = true;
+        //소리를 들었을 때 적 유형에 따라 미션 변경
+
+        // switch(적 유형)
+        mission = EnemyMission.search;
+        state = EnemyState.watch;
+
         noiseHeardPos = heardSoundPos;
     }
 
-    //시야 감지 기능 추가
-    void SightDetect()
+    void DetectTarget()
     {
-        //시야 감지 코드 작성
-        targetTransform = detectionZone.targetTransform;
+        //detectionzone의 isdetect와 battleswitch가 다르면 실행
+        //적을 발견했을 때 한번만 실행할 위치
+        //미션을 적 유형에 따라 배틀로 변경, 상태를 공격으로 변경
+
+        //bission = battle, state = attack
+        //공격 할 적의 위치 받기
+        //공격할 적의 transform, 적이 사라졌을 때의 마지막 위치를 저장할 position
+
+        agent.isStopped = true;
+
+        //switch(적 유형)
+        mission = EnemyMission.normalBattle;
+        state = EnemyState.attack;
+
     }
+
 }

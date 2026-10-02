@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    public Transform distanceTarget;
-
     [Header("PlayerMove")]
     public float speed;                     //이동 속도
     public float sprintSpeed;               //달릴 시 추가 속도
@@ -116,7 +114,6 @@ public class PlayerController : MonoBehaviour
     private void PlayerLook()
     {
         Vector3 dir = Camera.main.transform.position + (Camera.main.transform.forward * lookDistance);
-        distanceTarget.position = dir;
         transform.LookAt(new Vector3(dir.x, transform.position.y, dir.z));
 
         Vector3 newDir = dir - spine.position;
