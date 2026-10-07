@@ -72,6 +72,9 @@ public class Enemy : MonoBehaviour
     //private bool is//-----------------------------------------
     //전투 상태 한번만 실행되는 코드 작성 필요
 
+    [SerializeField]
+    private Transform targetTransform;
+
     //적 기능-----------------------------
     //피격
     //상태 변경
@@ -306,7 +309,7 @@ public class Enemy : MonoBehaviour
                 break;
         }
         agent.isStopped = true;
-        isNoiseHeard = true;
+        //isNoiseHeard = true;
         //소리를 들었을 때 적 유형에 따라 미션 변경
 
         // switch(적 유형)

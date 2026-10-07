@@ -38,6 +38,7 @@ public class NoiseManager : MonoBehaviour
         LayerMask enemyLayer = LayerMask.NameToLayer("Enemy");
         int layermask = (1 << enemyLayer);
 
+        //Physics.OverlapSphereNonAlloc를 사용하여 배열을 미리 만들어 두는 방법이 좋아보임
         Collider[] hitColliders = Physics.OverlapSphere(noiseData.position, noiseData.radius, layermask);
 
         foreach (Collider collider in hitColliders)

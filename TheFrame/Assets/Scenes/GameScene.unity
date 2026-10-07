@@ -4968,14 +4968,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponController
   muzzleFlash: {fileID: 1476364253}
   shootTransform: {fileID: 429805410}
-  magazineText: {fileID: 2015209034}
   reloadText: {fileID: 1225091942}
   bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
   bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
   poolManager: {fileID: 599052317}
-  audioSource: {fileID: 429835084}
   weapon:
     data: {fileID: 0}
+  magazineText: {fileID: 2015209034}
   maxAngle: 10
   crossHairController: {fileID: 719679928}
 --- !u!82 &429835084
@@ -7351,11 +7350,12 @@ MonoBehaviour:
   state: 0
   agent: {fileID: 626226172}
   ani: {fileID: 1226136169}
+  detectionZone: {fileID: 956007441}
+  noiseHeardPos: {x: 0, y: 0, z: 0}
   patrolPoint: []
   patrolIndex: 0
   patrolCheck: 1
-  detectionZone: {fileID: 956007441}
-  noiseHeardPos: {x: 0, y: 0, z: 0}
+  targetTransform: {fileID: 0}
 --- !u!195 &626226172
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -10125,8 +10125,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1062270581}
   m_Layer: 0
-  m_Name: "\u2606\u2606\u2606\uD544\uB3C5 !!!Enemy\uC758 \uBCC0\uC218 \uCABD\uBD80\uD130
-    \uC791\uC5C5 \uC2DC\uC791"
+  m_Name: "\u2606\u2606\u2606\uD544\uB3C5 !!! weaponController\uC758 \uD50C\uB808\uC774\uC5B4
+    \uBD80\uBD84 \uCD94\uCD9C"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17025,7 +17025,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7693d87e5ee2d4ebcb0f26e965b1b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  magazineText: {fileID: 0}
   weaponController: {fileID: 429835083}
+  crossHairController: {fileID: 0}
 --- !u!1 &1851370868
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,7 +20,14 @@ public class WeaponInstance : ItemInstance
     private float PlusReload;
     private float PlusNoise;
 
+    //현재 남은 총알
     public float CurrentMagazine { get; private set; }
+
+    //현재 발사 쿨타임
+    public float FireCooldown { get; private set; }
+
+    //
+    public bool IsReloading { get; private set; }
 
     //0 : muzzle, 1 : magazine, 2 : scope, 3 : stock
     private AttachmentInstance[] parts = new AttachmentInstance[4];  //파츠
@@ -45,6 +52,8 @@ public class WeaponInstance : ItemInstance
         {
             parts[i] = new AttachmentInstance(weaponIns.parts[i]);
         }
+
+        Reload();
     }
 
     public Weapon weapon => (Weapon)Data;
@@ -65,6 +74,8 @@ public class WeaponInstance : ItemInstance
         {
             parts[i] = new AttachmentInstance();
         }
+
+        Reload();
     }
 
     public bool CheckParts(int index)
@@ -105,6 +116,7 @@ public class WeaponInstance : ItemInstance
                 break;
         }
         PlusStatSet();
+        Reload();
         return instance;
     }
 
@@ -119,6 +131,7 @@ public class WeaponInstance : ItemInstance
             }
         }
         PlusStatSet();
+        Reload();
         return attachment;
     }
 
@@ -141,6 +154,76 @@ public class WeaponInstance : ItemInstance
         PlusNoise = weapon.PlusNoise;
 
         parts = weapon.parts;
+    }
+
+    //총알 발사 쿨타임 관리
+    public void Tick(float deltaTime)
+    {
+        if (FireCooldown > 0f)
+        {
+            FireCooldown -= deltaTime;
+
+            if (FireCooldown < 0f)
+            {
+                FireCooldown = 0f;
+            }
+        }
+    }
+
+    //현재 무기가 발사가 가능한 상태인지 확인
+    public bool CanFire()
+    {
+        if (CurrentMagazine <= 0f)
+            return false;
+        if (FireCooldown > 0f)
+            return false;
+        if (IsReloading)
+            return false;
+
+        return true;
+    }
+
+    //발사 시도
+    public bool TryFire()
+    {
+        if (!CanFire())
+            return false;
+
+        CurrentMagazine--;
+
+        FireCooldown = 1f / FinalRpm();
+
+        return true;
+    }
+
+    //재장전이 가능한 상태인지 체크
+    public bool CanReload()
+    {
+        if (IsReloading)
+            return false;
+        if (CurrentMagazine >= FinalMagazine())
+            return false;
+
+        return true;
+    }
+
+    //재장전 시작
+    public void StartReload()
+    {
+        if (!CanReload())
+            return;
+
+        IsReloading = true;
+    }
+
+    //재장전 종료
+    public void FinishReload()
+    {
+        if (!IsReloading)
+            return;
+
+        CurrentMagazine = FinalMagazine();
+        IsReloading = false;
     }
 
     public void Reload()

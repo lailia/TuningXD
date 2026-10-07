@@ -5,64 +5,46 @@ using UnityEngine.Pool;
 
 public class WeaponController : MonoBehaviour
 {
+    //공통으로 가져가야하는 내용
     public ParticleSystem muzzleFlash;              //총구 화염 이펙트
     public Transform shootTransform;                //총구 위치
-    public TextMeshProUGUI magazineText;            //탄창 텍스트
     public TextMeshProUGUI reloadText;              //재장전 텍스트
     public GameObject bulletPrefab;                 //무기가 사용하는 총알
     public GameObject bulletHolePrefab;
     public ObjectPoolManager poolManager;
-    public AudioSource audioSource;
 
     //무기
     [SerializeField]
     private WeaponInstance weapon;
     public WeaponInstance Weapon => weapon;
+
     private float reload = 0f;
 
-    [Header("Recoil")]
-    private float min;           //최소 반동
-    private float max;           //최대값
-    private float current;       //현재 거리
-    private float speed;         //벌어질 속도
-    private float recover;       //회복 속도
-    private float move;          //움직일 때 벌어질 거리
-    private float add;           //조준 중 감소할 거리
+    //무기 발사 메서드
+    //무기 재장전 메서드
 
+
+    //플레이어만 사용하는 내용
+
+    //총구 각도랑 피격 각도의 차이를 제한 할 때 사용하는 변수
     [Header("Angle")]
     public float maxAngle;
 
-    [Header("CrossHair")]
-    public CrossHairController crossHairController;
-
-    void Start()
+    //플레이어만 사용하는 코드
+    void Update()
     {
         
     }
 
-    void Update()
-    {
-        SpreadRecover();
-        crossHairController.SetCurrentSpread(current);
-    }
-
-    public void Init()
-    {
-        min = Weapon.FinalRecoil() * ((100f - Weapon.FinalAccuracy()) / 100f);
-        max = Weapon.FinalRecoil() * 2f;
-        speed = min / 2f;
-        recover = 5f;
-
-        magazineText.text = $"{Weapon.CurrentMagazine}";
-    }
-
+    //발사 실행
     public void Shoot(float lookDistance)
     {
+        //플레이어 전용
         muzzleFlash.Play();
 
         //레이를 쏠 시작점 구하기
         Vector2 center = new Vector2(Screen.width, Screen.height) * 0.5f;
-        Vector2 spreadOffset = Random.insideUnitCircle * current;
+        Vector2 spreadOffset = Random.insideUnitCircle;// * current 현재 조준점 비례 탄퍼짐
         Vector2 screenPos = center + spreadOffset;
 
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
@@ -108,15 +90,17 @@ public class WeaponController : MonoBehaviour
             targetPoint = ray.origin + ray.direction * dis;
         }
 
-        //SpawnTrail(shootTransform.position, hitPos);
         BulletFire(targetPoint, hitNormal);
-        SpreadCalculater();
+        //발사 후 조준점 벌어지는 코드
     }
 
+    //총알 및 총알 자국 생성
     private void BulletFire(Vector3 hitPos, Vector3 normal)
     {
+        //공통
         if (!normal.Equals(Vector3.zero))
         {
+            //총알 자국
             GameObject bhObj = poolManager.GetObject(bulletHolePrefab);
             BulletHole bh = bhObj.GetComponent<BulletHole>();
             bh.Init(bulletHolePrefab, poolManager);
@@ -127,7 +111,7 @@ public class WeaponController : MonoBehaviour
 
         SoundManager.Instance.PlaySFX(SoundManager.Instance.fireClip);
 
-        // GameObject bObj = poolManager.GetObject(bulletPrefab);
+        //총알
         GameObject bObj = poolManager.GetObject(bulletPrefab, out ObjectPool<GameObject> pool);
         Bullet b = bObj.GetComponent<Bullet>();
         b.Init(bulletPrefab, poolManager);
@@ -137,39 +121,22 @@ public class WeaponController : MonoBehaviour
 
     public float Rpm()
     {
+        //수정 필요
         return Weapon.FinalRpm();
     }
 
-    public void SpreadRecover()
-    {
-        current = Mathf.Lerp(current, (min + move + add), recover * Time.deltaTime);
-    }
-
+    //반동
     public Vector2 FireRecoil()
     {
+        //플레이어 전용
         float recoil = Weapon.FinalRecoil() / 200f;
         float halfRecoil = recoil / 2f;
         return new Vector2(Random.Range(-halfRecoil, halfRecoil), recoil);
     }
 
-    public void SpreadCalculater()
-    {
-        current += speed;
-        current = Mathf.Clamp(current, (min + move + add), (max + move + add));
-    }
-
-    public void SetMove(bool isMove)
-    {
-        move = isMove ? 20f : 0f;
-    }
-
-    public void SetAdd(bool isAim)
-    {
-        add = isAim ? -10f : 0f;
-    }
-
     public bool ReloadCheck()
     {
+        //수정 필요
         if (Weapon.CurrentMagazine > 0)
         {
             Weapon.Shoot();
@@ -186,6 +153,7 @@ public class WeaponController : MonoBehaviour
 
     public void Reloaded()
     {
+        //수정 필요
         if(weapon.weapon!=null)
         {
             reload += Time.deltaTime;
@@ -201,6 +169,7 @@ public class WeaponController : MonoBehaviour
     //무기 세팅
     public void WeaponSet(WeaponInstance weapon)
     {
+        //수정 필요
         this.weapon = weapon;
     }
 }

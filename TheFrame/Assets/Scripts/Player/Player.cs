@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -6,6 +7,9 @@ public class Player : MonoBehaviour
     public WeaponInstance Weapon { get; private set; }
     //방어구
     public ArmorInstance Armor { get; private set; }
+
+    //탄창 텍스트
+    public TextMeshProUGUI magazineText;            
 
     //기본 스탯
     public float Reduce { get; private set; }
@@ -16,6 +20,7 @@ public class Player : MonoBehaviour
     public bool IsEquipWeapon { get; private set; }
 
     public WeaponController weaponController;
+    public CrossHairController crossHairController;
 
     void Start()
     {
@@ -55,6 +60,11 @@ public class Player : MonoBehaviour
         {
             this.Armor = null;
         }
+    }
+
+    public void UpdateMagazineText()
+    {
+        magazineText.text = $"{Weapon.CurrentMagazine}";
     }
 
 }
