@@ -12,9 +12,9 @@ public class PlayerController : MonoBehaviour
     public float sprintSpeed;               //달릴 시 추가 속도
     public float gravity;                   //중력 가속도
     public CharacterController caracterController;  //캐릭터 컨트롤러 컴포넌트
-    public JoyStick joystick;
-    public Buttons shootButton;
-    public Buttons aimButton;
+    //public JoyStick joystick;
+    //public Buttons shootButton;
+    //public Buttons aimButton;
 
     private Vector2 dir;                        //방향
     private Vector3 moveInput;                  //속도
@@ -25,13 +25,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Fire")]
     private bool isFire;                        //총 발사 논리값
-    private float fireTime;                     //
-
-    [Header("Recoil")]
-    public Transform pivot;                         //총기 반동용 타겟
-
-    private Vector2 currentPos;                 //반동용 포지션
-    private Vector2 targetPos;                  //반동용 포지션
 
     [Header("Animation")]
     public Animator soldierAni;                     //애니메이터
@@ -93,6 +86,7 @@ public class PlayerController : MonoBehaviour
 
         if (dir != Vector2.zero)
         {
+            //여긴 플레이어 파이어 시스템에서 가져옴
             weaponController.SetMove(true);
         }
         else
@@ -123,57 +117,34 @@ public class PlayerController : MonoBehaviour
         //spine.LookAt(dir);
     }
 
-    //반동 제어
-    private void RecoilPivot()
-    {
-        // 원래 위치로 복귀
-        targetPos = Vector2.Lerp(targetPos, Vector2.zero, 5f * Time.deltaTime);
-        currentPos = Vector2.Lerp(currentPos, targetPos, 10f * Time.deltaTime);
-
-        // Pivot 위치 이동
-        pivot.localPosition = new Vector3(-currentPos.x, currentPos.y, 0f);
-    }
-
-    //총기 반동
-    private void FireRecoil()
-    {
-        targetPos += weaponController.FireRecoil();
-    }
 
     //발사 기능
     private void OnFire()
     {
-        if(weaponController.Weapon != null)
-        {
-            fireTime += Time.deltaTime;
+        //if(weaponController.Weapon != null)
+        //{
+        //    fireTime += Time.deltaTime;
 
-            if (weaponController.ReloadCheck())
-            {
-                if (isFire)
-                {
-                    if (fireTime >= FireInterval())
-                    {
-                        soldierAni.SetTrigger("Shoot");
-                        weaponController.Shoot(lookDistance);
-                        FireRecoil();
+        //    if (weaponController.ReloadCheck())
+        //    {
+        //        if (isFire)
+        //        {
+        //            if (fireTime >= FireInterval())
+        //            {
+        //                soldierAni.SetTrigger("Shoot");
+        //                weaponController.Shoot(lookDistance);
+        //                FireRecoil();
 
-                        fireTime = 0f;
-                    }
-                }
-            }
-            else
-            {
-                weaponController.Reloaded();
-            }
-        }
+        //                fireTime = 0f;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        weaponController.Reloaded();
+        //    }
+        //}
     }
-
-    //발사 간격
-    private float FireInterval()            
-    {
-        float rpm = weaponController.Rpm();
-        return 1 / (rpm / 60);              // (rpm/60) = 초당 발사되는 총알의 개수
-    }                                       // 1/(rpm/60) = 발사 간격
 
     //조준 기능
     private void AimCheck()
@@ -183,6 +154,7 @@ public class PlayerController : MonoBehaviour
         if(isAiming)
         {
             cinemachineCamera.Lens.FieldOfView = Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, minFov, Time.deltaTime * aimSpeed);
+            //조준 상태인지 확인
             weaponController.SetAdd(isAiming);
         }
         else

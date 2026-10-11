@@ -26,7 +26,7 @@ public class WeaponInstance : ItemInstance
     //현재 발사 쿨타임
     public float FireCooldown { get; private set; }
 
-    //
+    //재장전 중인지 체크
     public bool IsReloading { get; private set; }
 
     //0 : muzzle, 1 : magazine, 2 : scope, 3 : stock
@@ -191,7 +191,7 @@ public class WeaponInstance : ItemInstance
 
         CurrentMagazine--;
 
-        FireCooldown = 1f / FinalRpm();
+        FireCooldown = 1f / (FinalRpm() / 60f);
 
         return true;
     }
