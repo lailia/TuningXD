@@ -12,12 +12,8 @@ public class CrossHairController : MonoBehaviour
     private float move;                 //움직일 때 벌어질 거리
     private float add;                  //조준 중 감소할 거리
 
-    void Start()
-    {
-        
-    }
-
-    public void Init(WeaponInstance weapon)
+    //무기 교체 시 수치 세팅 메서드
+    public void SpreadSet(WeaponInstance weapon)
     {
         minSpread = weapon.FinalRecoil() * ((100f - weapon.FinalAccuracy()) / 100f);
         maxSpread = weapon.FinalRecoil() * 2f;
@@ -25,50 +21,28 @@ public class CrossHairController : MonoBehaviour
         spreadRecover = 5f;
     }
 
-    void Update()
+    //실시간 조준점 변경 메서드
+    public void SpreadUpdate(bool isMove, bool isAim)
     {
-        SpreadRecover();
-        CrossHairUpdate();
-    }
+        //움직일 때 
+        move = isMove ? 20f : 0f;
+        //조준할 때
+        add = isAim ? -10f : 0f;
 
-    public void SetCurrentSpread(float _currentSpread)
-    {
-        currentSpread = _currentSpread;
-    }
-
-    private void CrossHairUpdate()
-    {
+        //발사를 안할 때 조준점 줄어드는 코드
+        currentSpread = 
+            Mathf.Lerp(currentSpread, (minSpread + move + add), spreadRecover * Time.deltaTime);
+        
+        //currentSpread에 따라 조준점 변경하는 코드
         crossHairs[0].anchoredPosition = new Vector3(0f, currentSpread, 0f);
         crossHairs[1].anchoredPosition = new Vector3(0f, -currentSpread, 0f);
         crossHairs[2].anchoredPosition = new Vector3(currentSpread, 0f, 0f);
         crossHairs[3].anchoredPosition = new Vector3(-currentSpread, 0f, 0f);
     }
 
-    //이동 할 때 조준점 벌어지는 거리
-    public void SetMove(bool isMove)
-    {
-        //플레이어 전용
-        move = isMove ? 20f : 0f;
-    }
-
-    //줌 했을 때 줄어들 거리
-    public void SetAdd(bool isAim)
-    {
-        //플레이어 전용
-        add = isAim ? -10f : 0f;
-    }
-
-    //조준점 제어
-    public void SpreadRecover()
-    {
-        //플레이어 전용
-        currentSpread = Mathf.Lerp(currentSpread, (minSpread + move + add), spreadRecover * Time.deltaTime);
-    }
-
-    //조준점 계산
+    //발사 시 조준점 벌어지는 메서드
     public void SpreadCalculater()
     {
-        //플레이어 전용
         currentSpread += spreadSpeed;
         currentSpread = Mathf.Clamp(currentSpread, (minSpread + move + add), (maxSpread + move + add));
     }

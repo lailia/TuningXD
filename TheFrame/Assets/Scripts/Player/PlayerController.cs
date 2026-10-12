@@ -24,17 +24,11 @@ public class PlayerController : MonoBehaviour
     public CinemachineCamera cinemachineCamera;
 
     [Header("Fire")]
-    private bool isFire;                        //총 발사 논리값
+    public bool isFire;                        //총 발사 논리값
 
     [Header("Animation")]
     public Animator soldierAni;                     //애니메이터
     public Transform spine;                         //상체 트랜스폼
-
-    [Header("PlayerStats")]
-    public Player stats;
-
-    [Header("Weapon")]
-    public WeaponController weaponController;       //무기 스크립트
 
     [Header("Aim")]
     private bool isAiming;
@@ -43,29 +37,14 @@ public class PlayerController : MonoBehaviour
     private float maxFov = 60f;
     private float aimSpeed = 10f;
 
-    void Start()
-    {
-        //Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    void Update()
-    {
-        PlayerMove();
-        OnFire();
-        RecoilPivot();
-        AimCheck();
-    }
-
     private void LateUpdate()
     {
         PlayerLook();
     }
 
     //플레이어 이동
-    private void PlayerMove()
+    public bool PlayerMove()
     {
-        //dir = new Vector2(joystick.InputDirection.x, joystick.InputDirection.y);
-
         soldierAni.SetFloat("X", dir.x);
         soldierAni.SetFloat("Y", dir.y);
 
@@ -84,16 +63,6 @@ public class PlayerController : MonoBehaviour
             soldierAni.SetBool("Aiming", true);
         }
 
-        if (dir != Vector2.zero)
-        {
-            //여긴 플레이어 파이어 시스템에서 가져옴
-            weaponController.SetMove(true);
-        }
-        else
-        {
-            weaponController.SetMove(false);
-        }
-
         moveInput = transform.forward * dir.y + transform.right * dir.x + transform.up * moveInput.y;
 
         if (caracterController.isGrounded == false)
@@ -102,6 +71,8 @@ public class PlayerController : MonoBehaviour
             moveInput.y = 0;
 
         caracterController.Move(moveInput * (speed + sprintSpeed) * Time.deltaTime);
+
+        return (dir != Vector2.zero);
     }
 
     //플레이어가 바라보는 방향으로 회전
@@ -147,21 +118,13 @@ public class PlayerController : MonoBehaviour
     }
 
     //조준 기능
-    private void AimCheck()
+    public bool AimCheck()
     {
-        //isAiming = aimButton.isButtonDown;
-
-        if(isAiming)
-        {
-            cinemachineCamera.Lens.FieldOfView = Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, minFov, Time.deltaTime * aimSpeed);
-            //조준 상태인지 확인
-            weaponController.SetAdd(isAiming);
-        }
-        else
-        {
-            cinemachineCamera.Lens.FieldOfView = Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, maxFov, Time.deltaTime * aimSpeed);
-            weaponController.SetAdd(isAiming);
-        }
+        float currentFov = isAiming ? minFov : maxFov;
+        cinemachineCamera.Lens.FieldOfView = 
+            Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, currentFov, Time.deltaTime * aimSpeed);
+        
+        return isAiming;
     }
 
     //오른쪽 클릭 했을 때 (조준)

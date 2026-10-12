@@ -4966,17 +4966,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9540a13877d418d4ab1e20dc946b3382, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponController
-  muzzleFlash: {fileID: 1476364253}
+  maxAngle: 10
   shootTransform: {fileID: 429805410}
-  reloadText: {fileID: 1225091942}
+  muzzleFlash: {fileID: 1476364253}
   bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
   bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
   poolManager: {fileID: 599052317}
   weapon:
     data: {fileID: 0}
-  magazineText: {fileID: 2015209034}
-  maxAngle: 10
-  crossHairController: {fileID: 719679928}
 --- !u!82 &429835084
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10125,8 +10122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1062270581}
   m_Layer: 0
-  m_Name: "\u2606\u2606\u2606\uD544\uB3C5 !!! weaponController\uC758 \uD50C\uB808\uC774\uC5B4
-    \uBD80\uBD84 \uCD94\uCD9C"
+  m_Name: "\u2606\u2606\u2606\uD544\uB3C5 !!! WeaponController\uBD80\uD130 \uC2DC\uC791"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17003,16 +16999,11 @@ MonoBehaviour:
   sprintSpeed: 0
   gravity: 5
   caracterController: {fileID: 1830260233}
-  joystick: {fileID: 210046790}
-  shootButton: {fileID: 336002426}
-  aimButton: {fileID: 488465198}
   lookDistance: 20
   cinemachineCamera: {fileID: 474968529}
-  pivot: {fileID: 1937308627}
+  isFire: 0
   soldierAni: {fileID: 420028718}
   spine: {fileID: 429908592}
-  stats: {fileID: 1830260237}
-  weaponController: {fileID: 429835083}
 --- !u!114 &1830260237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17025,9 +17016,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7693d87e5ee2d4ebcb0f26e965b1b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  weapon:
+    data: {fileID: 0}
+  armor:
+    data: {fileID: 0}
   magazineText: {fileID: 0}
+  reduce: 0
+  health: 0
+  maxAmmo: 0
+  speed: 0
+  isEquipWeapon: 0
+  playerController: {fileID: 0}
   weaponController: {fileID: 429835083}
   crossHairController: {fileID: 0}
+  playerScreenEffects: {fileID: 0}
 --- !u!1 &1851370868
 GameObject:
   m_ObjectHideFlags: 0

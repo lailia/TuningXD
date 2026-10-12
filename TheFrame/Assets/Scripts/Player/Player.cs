@@ -4,49 +4,57 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     //무기
-    public WeaponInstance Weapon { get; private set; }
+    public WeaponInstance weapon;
     //방어구
-    public ArmorInstance Armor { get; private set; }
+    public ArmorInstance armor;
 
     //탄창 텍스트
-    public TextMeshProUGUI magazineText;            
+    public TextMeshProUGUI magazineText;
 
     //기본 스탯
-    public float Reduce { get; private set; }
-    public float Health { get; private set; }
-    public float MaxAmmo { get; private set; }
-    public float Speed { get; private set; }
+    public float reduce;
+    public float health;
+    public float maxAmmo;
+    public float speed;
 
-    public bool IsEquipWeapon { get; private set; }
+    public bool isEquipWeapon;
 
+    public PlayerController playerController;
     public WeaponController weaponController;
     public CrossHairController crossHairController;
-
-    void Start()
-    {
-        
-    }
+    public PlayerScreenEffects playerScreenEffects;
 
     void Update()
     {
-        
+        //조준점 업데이트 할 때 플레이어 이동과 조준 실행
+        crossHairController.SpreadUpdate(playerController.PlayerMove(), playerController.AimCheck());
+        //반동 제어
+        playerScreenEffects.RecoilPivot();
+    }
+
+    void Fire()
+    {
+        if(playerController.isFire)
+        {
+
+        }
     }
 
     public void WeaponSet(WeaponInstance weapon)
     {
         if (weapon!=null)
         {
-            this.Weapon = weapon;
-            weaponController.WeaponSet(Weapon);
+            this.weapon = weapon;
+            weaponController.WeaponSet(this.weapon);
 
-            IsEquipWeapon = true;
+            isEquipWeapon = true;
         }
         else
         {
-            this.Weapon = null;
-            weaponController.WeaponSet(Weapon);
+            this.weapon = null;
+            weaponController.WeaponSet(this.weapon);
 
-            IsEquipWeapon = false;
+            isEquipWeapon = false;
         }
     }
 
@@ -54,17 +62,17 @@ public class Player : MonoBehaviour
     {
         if(armor!=null)
         {
-            this.Armor = armor;
+            this.armor = armor;
         }
         else
         {
-            this.Armor = null;
+            this.armor = null;
         }
     }
 
     public void UpdateMagazineText()
     {
-        magazineText.text = $"{Weapon.CurrentMagazine}";
+        magazineText.text = $"{weapon.CurrentMagazine}";
     }
 
 }
