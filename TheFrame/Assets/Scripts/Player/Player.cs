@@ -30,22 +30,29 @@ public class Player : MonoBehaviour
         crossHairController.SpreadUpdate(playerController.PlayerMove(), playerController.AimCheck());
         //반동 제어
         playerScreenEffects.RecoilPivot();
-    }
 
-    void Fire()
-    {
-        if(playerController.isFire)
+
+        if (playerController.isFire)
         {
-
+            Fire();
         }
     }
 
+    //발사 실행
+    void Fire()
+    {
+        crossHairController.SpreadCalculater();
+        playerScreenEffects.FireRecoil(weapon);
+    }
+
+    //장착 무기 변경
     public void WeaponSet(WeaponInstance weapon)
     {
         if (weapon!=null)
         {
             this.weapon = weapon;
             weaponController.WeaponSet(this.weapon);
+            crossHairController.SpreadSet(weapon);
 
             isEquipWeapon = true;
         }
@@ -53,11 +60,13 @@ public class Player : MonoBehaviour
         {
             this.weapon = null;
             weaponController.WeaponSet(this.weapon);
+            crossHairController.SpreadSet(weapon);
 
             isEquipWeapon = false;
         }
     }
 
+    //장착 방어구 변경
     public void ArmorSet(ArmorInstance armor)
     {
         if(armor!=null)
@@ -70,6 +79,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    
     public void UpdateMagazineText()
     {
         magazineText.text = $"{weapon.CurrentMagazine}";
