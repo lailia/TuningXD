@@ -3884,7 +3884,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 429835082}
-  - component: {fileID: 429835083}
+  - component: {fileID: 429835085}
   - component: {fileID: 429835084}
   m_Layer: 0
   m_Name: Weapon_R
@@ -4954,26 +4954,6 @@ Transform:
   - {fileID: 429846834}
   m_Father: {fileID: 429911644}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &429835083
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 429482916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9540a13877d418d4ab1e20dc946b3382, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
-  maxAngle: 10
-  shootTransform: {fileID: 429805410}
-  muzzleFlash: {fileID: 1476364253}
-  bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
-  bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
-  poolManager: {fileID: 599052317}
-  weapon:
-    data: {fileID: 0}
 --- !u!82 &429835084
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5071,6 +5051,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &429835085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429482916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71a5a832aff5f93419c1591161467283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWeaponHandler
+  weapon:
+    data: {fileID: 0}
+  weaponController: {fileID: 1896443209}
+  playerScreenEffects: {fileID: 1830260238}
+  crossHairController: {fileID: 719679928}
+  ShootTransform: {fileID: 429805410}
 --- !u!4 &429843434
 Transform:
   m_ObjectHideFlags: 0
@@ -5955,7 +5953,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8b9eed057e842dd4f8822188f31d6022, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9448,7 +9446,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8b9eed057e842dd4f8822188f31d6022, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14990,7 +14988,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8b9eed057e842dd4f8822188f31d6022, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16267,7 +16265,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8b9eed057e842dd4f8822188f31d6022, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16735,7 +16733,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8b9eed057e842dd4f8822188f31d6022, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17000,9 +16998,6 @@ MonoBehaviour:
   sprintSpeed: 0
   gravity: 5
   caracterController: {fileID: 1830260233}
-  lookDistance: 20
-  cinemachineCamera: {fileID: 474968529}
-  isFire: 0
   soldierAni: {fileID: 420028718}
   spine: {fileID: 429908592}
 --- !u!114 &1830260237
@@ -17017,20 +17012,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7693d87e5ee2d4ebcb0f26e965b1b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  weapon:
-    data: {fileID: 0}
   armor:
     data: {fileID: 0}
-  magazineText: {fileID: 2015209034}
   reduce: 0
   health: 0
   maxAmmo: 0
   speed: 0
-  isEquipWeapon: 0
+  lookDistance: 20
   playerController: {fileID: 1830260236}
-  weaponController: {fileID: 429835083}
-  crossHairController: {fileID: 719679928}
-  playerScreenEffects: {fileID: 1830260238}
+  playerWeaponHandler: {fileID: 429835085}
 --- !u!114 &1830260238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17043,7 +17033,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 577e0811642c5ff4c8292b3240632817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerScreenEffects
+  magazineText: {fileID: 2015209034}
   reloadText: {fileID: 1225091942}
+  muzzleFlash: {fileID: 1476364253}
+  cinemachineCamera: {fileID: 0}
   pivot: {fileID: 1937308627}
 --- !u!1 &1851370868
 GameObject:
@@ -17379,6 +17372,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1865808174}
   m_CullTransparentMesh: 1
+--- !u!1 &1896443208
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1896443210}
+  - component: {fileID: 1896443209}
+  m_Layer: 0
+  m_Name: WeaponController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1896443209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896443208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9540a13877d418d4ab1e20dc946b3382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  maxAngle: 10
+  bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
+  bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
+  poolManager: {fileID: 599052317}
+--- !u!4 &1896443210
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896443208}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1909542890
 GameObject:
   m_ObjectHideFlags: 0
@@ -17736,8 +17777,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Look[/Mouse/delta]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1830260236}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 429835085}
+        m_TargetAssemblyTypeName: PlayerWeaponHandler, Assembly-CSharp
         m_MethodName: OnLeftClick
         m_Mode: 0
         m_Arguments:
@@ -17852,8 +17893,8 @@ MonoBehaviour:
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1830260236}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 429835085}
+        m_TargetAssemblyTypeName: PlayerWeaponHandler, Assembly-CSharp
         m_MethodName: OnRightClick
         m_Mode: 0
         m_Arguments:
@@ -17898,6 +17939,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 47aa6995-83de-4b1e-ad1c-3b257446826b
     m_ActionName: 'Player/InvenSort[/Keyboard/tab]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 429835085}
+        m_TargetAssemblyTypeName: PlayerWeaponHandler, Assembly-CSharp
+        m_MethodName: OnReload
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8f009438-290e-444d-8ed2-e3a0ab5a7852
+    m_ActionName: 'Player/Reload[/Keyboard/r]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -18014,7 +18071,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8b9eed057e842dd4f8822188f31d6022, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -18820,4 +18877,5 @@ SceneRoots:
   - {fileID: 1423974373}
   - {fileID: 599052318}
   - {fileID: 992903967}
+  - {fileID: 1896443210}
   - {fileID: 1233226253}

@@ -3,17 +3,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Pool;
 
+//발사, 재장전, 발사 쿨타임 관리
 public class WeaponController : MonoBehaviour
 {
     //총구 각도랑 피격 각도의 차이를 제한 할 때 사용하는 변수
     [Header("Angle")]
     public float maxAngle;
-
-    //총구 위치
-    public Transform shootTransform;
-
-    //총구 화염 이펙트
-    public ParticleSystem muzzleFlash;
 
     //무기가 사용하는 총알
     public GameObject bulletPrefab;       
@@ -24,25 +19,10 @@ public class WeaponController : MonoBehaviour
     //풀매니저
     public ObjectPoolManager poolManager;
 
-    //무기
-    [SerializeField]
-    private WeaponInstance weapon;
-    public WeaponInstance Weapon => weapon;
-
-    private float reload = 0f;
-
-    //무기 발사 메서드
-    //플레이어 전용 발사 실행-------------------------------------------------여기부터 시작
-    public void Shoot(float lookDistance, ParticleSystem muzzleFlash)
+    //발사
+    public void Shoot(Ray ray, Transform shootTransform, float lookDistance)
     {
-        muzzleFlash.Play();
-
-        //레이를 쏠 시작점 구하기
-        Vector2 center = new Vector2(Screen.width, Screen.height) * 0.5f;
-        Vector2 spreadOffset = Random.insideUnitCircle;// * current 현재 조준점 비례 탄퍼짐
-        Vector2 screenPos = center + spreadOffset;
-
-        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+        //이 아래로 공용 코드
         RaycastHit hit;
 
         Vector3 targetPoint;
@@ -60,7 +40,8 @@ public class WeaponController : MonoBehaviour
         //명중률 계산 :  hitPos = (hit.point + random * (반동 * ((100 - 명중률)/100f)))에 맞추기
         //조준점 계산 :  distance(14 ~ 28) = currentRecoil(20 ~ 40) * ((100-명중률(30))/100f)
 
-        Vector3 v = Camera.main.transform.position + (Camera.main.transform.forward * lookDistance);
+        //목표 위치-----------------------
+        //Vector3 v = Camera.main.transform.position + (Camera.main.transform.forward * lookDistance);
 
         Vector3 dir = (targetPoint - shootTransform.position).normalized;                        //방향
         float angle = Vector3.Angle(shootTransform.forward, dir);                   //각도
@@ -69,9 +50,11 @@ public class WeaponController : MonoBehaviour
 
         Vector3 fireDir = Quaternion.AngleAxis(clampedAngle, axis) * shootTransform.forward;
 
-        float dis = Vector3.Distance(v, shootTransform.position);                   //총구에서 바라본 거리
+        //총구에서 바라본 거리
+        float dis = Vector3.Distance(shootTransform.position, targetPoint);
 
-        ray = new Ray(shootTransform.position, fireDir);                             //총구부터 시작하는 레이
+        //총구부터 시작하는 레이
+        ray = new Ray(shootTransform.position, fireDir);                             
 
         //카메라 레이 먼저 쏘고 총구에서 레이 쏴서 각도 내에 있을 시 정상 작동, 최대 각도를 넘어가면 최대각도만큼만
         //조준점 클래스 만들고 총 컨트롤러와 플레이어 컨트롤러에서 관리
@@ -114,41 +97,10 @@ public class WeaponController : MonoBehaviour
         b.transform.up = (hitPos - b.transform.position).normalized;
     }
 
-    //무기 재장전 메서드
-    public bool ReloadCheck()
+    //재장전
+    public void Reload(WeaponInstance weapon)
     {
-        //수정 필요
-        if (Weapon.CurrentMagazine > 0)
-        {
-            Weapon.Shoot();
-            return true;
-        }
-        else
-        {
-            //reload = 0f;
-            return false;
-        }
-    }
-
-    public void Reloaded()
-    {
-        //수정 필요
-        if(weapon.weapon!=null)
-        {
-            reload += Time.deltaTime;
-            if (reload >= Weapon.FinalReloadTime())
-            {
-                Weapon.Reload();
-                reload = 0f;
-            }
-        }
-    }
-
-    //무기 세팅
-    public void WeaponSet(WeaponInstance weapon)
-    {
-        //수정 필요
-        this.weapon = weapon;
+        weapon.StartReload();
     }
 
 }

@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 
+//플레이어 오브젝트 관리, 입력 감지
 public class PlayerController : MonoBehaviour
 {
     [Header("PlayerMove")]
@@ -19,27 +20,16 @@ public class PlayerController : MonoBehaviour
     private Vector2 dir;                        //방향
     private Vector3 moveInput;                  //속도
 
-    [Header("Camera")]
-    public float lookDistance;              //플레이어가 바라볼 카메라 거리
-    public CinemachineCamera cinemachineCamera;
-
-    [Header("Fire")]
-    public bool isFire;                        //총 발사 논리값
-
     [Header("Animation")]
     public Animator soldierAni;                     //애니메이터
     public Transform spine;                         //상체 트랜스폼
 
     [Header("Aim")]
-    private bool isAiming;
     private bool isRunning;
-    private float minFov = 30f;
-    private float maxFov = 60f;
-    private float aimSpeed = 10f;
 
     private void LateUpdate()
     {
-        PlayerLook();
+        
     }
 
     //플레이어 이동
@@ -76,7 +66,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //플레이어가 바라보는 방향으로 회전
-    private void PlayerLook()
+    public void PlayerLook(float lookDistance)
     {
         Vector3 dir = Camera.main.transform.position + (Camera.main.transform.forward * lookDistance);
         transform.LookAt(new Vector3(dir.x, transform.position.y, dir.z));
@@ -86,71 +76,6 @@ public class PlayerController : MonoBehaviour
 
         //spine.up = new Vector3(dir.z, dir.y, dir.x);
         //spine.LookAt(dir);
-    }
-
-
-    //발사 기능
-    private void OnFire()
-    {
-        //if(weaponController.Weapon != null)
-        //{
-        //    fireTime += Time.deltaTime;
-
-        //    if (weaponController.ReloadCheck())
-        //    {
-        //        if (isFire)
-        //        {
-        //            if (fireTime >= FireInterval())
-        //            {
-        //                soldierAni.SetTrigger("Shoot");
-        //                weaponController.Shoot(lookDistance);
-        //                FireRecoil();
-
-        //                fireTime = 0f;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        weaponController.Reloaded();
-        //    }
-        //}
-    }
-
-    //조준 기능
-    public bool AimCheck()
-    {
-        float currentFov = isAiming ? minFov : maxFov;
-        cinemachineCamera.Lens.FieldOfView = 
-            Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, currentFov, Time.deltaTime * aimSpeed);
-        
-        return isAiming;
-    }
-
-    //오른쪽 클릭 했을 때 (조준)
-    public void OnRightClick(InputAction.CallbackContext context)
-    {
-        if(context.performed)
-        {
-            isAiming = true;
-        }
-        else
-        {
-            isAiming = false;
-        }
-    }
-
-    //왼쪽 클릭 했을 때 (공격)
-    public void OnLeftClick(InputAction.CallbackContext context)
-    {
-        if(context.performed)
-        {
-            isFire = true;
-        }
-        else
-        {
-            isFire = false;
-        }
     }
 
     //WASD or 방향키 눌렀을 때 (이동)

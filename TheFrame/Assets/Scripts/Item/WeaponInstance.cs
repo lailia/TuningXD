@@ -29,6 +29,9 @@ public class WeaponInstance : ItemInstance
     //재장전 중인지 체크
     public bool IsReloading { get; private set; }
 
+    //현재 재장전 쿨타임
+    public float CurrentReloadTime { get; private set; }
+
     //0 : muzzle, 1 : magazine, 2 : scope, 3 : stock
     private AttachmentInstance[] parts = new AttachmentInstance[4];  //파츠
     public AttachmentInstance[] Parts => parts;
@@ -168,6 +171,19 @@ public class WeaponInstance : ItemInstance
                 FireCooldown = 0f;
             }
         }
+
+        if(IsReloading)
+        {
+            if(CurrentReloadTime>0f)
+            {
+                CurrentReloadTime -= deltaTime;
+
+                if(CurrentReloadTime<0f)
+                {
+                    FinishReload();
+                }
+            }
+        }
     }
 
     //현재 무기가 발사가 가능한 상태인지 확인
@@ -213,6 +229,7 @@ public class WeaponInstance : ItemInstance
         if (!CanReload())
             return;
 
+        CurrentReloadTime = FinalReloadTime();
         IsReloading = true;
     }
 

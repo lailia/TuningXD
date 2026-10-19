@@ -3,13 +3,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    //무기
-    public WeaponInstance weapon;
     //방어구
     public ArmorInstance armor;
-
-    //탄창 텍스트
-    public TextMeshProUGUI magazineText;
 
     //기본 스탯
     public float reduce;
@@ -17,32 +12,21 @@ public class Player : MonoBehaviour
     public float maxAmmo;
     public float speed;
 
-    public bool isEquipWeapon;
+    //플레이어가 바라볼 카메라 거리
+    public float lookDistance;              
 
     public PlayerController playerController;
-    public WeaponController weaponController;
-    public CrossHairController crossHairController;
-    public PlayerScreenEffects playerScreenEffects;
+    public PlayerWeaponHandler playerWeaponHandler;
 
-    void Update()
+    private void Update()
     {
-        //조준점 업데이트 할 때 플레이어 이동과 조준 실행
-        crossHairController.SpreadUpdate(playerController.PlayerMove(), playerController.AimCheck());
-        //반동 제어
-        playerScreenEffects.RecoilPivot();
-
-
-        if (playerController.isFire)
-        {
-            Fire();
-        }
+        playerWeaponHandler.Fire(lookDistance);
+        playerWeaponHandler.CrossHairUpdate(playerController.PlayerMove());
     }
 
-    //발사 실행
-    void Fire()
+    private void LateUpdate()
     {
-        crossHairController.SpreadCalculater();
-        playerScreenEffects.FireRecoil(weapon);
+        playerController.PlayerLook(lookDistance);
     }
 
     //장착 무기 변경
@@ -50,19 +34,11 @@ public class Player : MonoBehaviour
     {
         if (weapon!=null)
         {
-            this.weapon = weapon;
-            weaponController.WeaponSet(this.weapon);
-            crossHairController.SpreadSet(weapon);
-
-            isEquipWeapon = true;
+            playerWeaponHandler.WeaponSet(weapon);
         }
         else
         {
-            this.weapon = null;
-            weaponController.WeaponSet(this.weapon);
-            crossHairController.SpreadSet(weapon);
-
-            isEquipWeapon = false;
+            playerWeaponHandler.WeaponSet(weapon);
         }
     }
 
@@ -77,12 +53,6 @@ public class Player : MonoBehaviour
         {
             this.armor = null;
         }
-    }
-
-    
-    public void UpdateMagazineText()
-    {
-        magazineText.text = $"{weapon.CurrentMagazine}";
     }
 
 }
