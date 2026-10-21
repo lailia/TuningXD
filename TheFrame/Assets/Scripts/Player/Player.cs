@@ -20,8 +20,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        playerWeaponHandler.Fire(lookDistance);
-        playerWeaponHandler.CrossHairUpdate(playerController.PlayerMove());
+        playerWeaponHandler.UpdateCrossHair(playerController.PlayerMove());
     }
 
     private void LateUpdate()
@@ -30,20 +29,20 @@ public class Player : MonoBehaviour
     }
 
     //장착 무기 변경
-    public void WeaponSet(WeaponInstance weapon)
+    public void SetWeapon(WeaponInstance weapon)
     {
         if (weapon!=null)
         {
-            playerWeaponHandler.WeaponSet(weapon);
+            playerWeaponHandler.SetWeapon(weapon);
         }
         else
         {
-            playerWeaponHandler.WeaponSet(weapon);
+            playerWeaponHandler.SetWeapon(weapon);
         }
     }
 
     //장착 방어구 변경
-    public void ArmorSet(ArmorInstance armor)
+    public void SetArmor(ArmorInstance armor)
     {
         if(armor!=null)
         {

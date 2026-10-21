@@ -1,13 +1,12 @@
 using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
-using static UnityEngine.AdaptivePerformance.Provider.AdaptivePerformanceSubsystemDescriptor;
 
 //WeaponEffect로 변경, 카메라 반동, 총구 화염, 발사 음 관리
 public class PlayerScreenEffects : MonoBehaviour
 {
     //탄창 텍스트
-    public TextMeshProUGUI magazineText;
+    public TextMeshProUGUI AmmoText;
 
     //재장전 텍스트
     public TextMeshProUGUI reloadText;
@@ -27,22 +26,30 @@ public class PlayerScreenEffects : MonoBehaviour
     //에임 줌인, 줌아웃, 변경 스피드
     private float minFov = 30f;
     private float maxFov = 60f;
+    private float currentFov = 60f;
     private float aimSpeed = 10f;
 
+    //반동 세기
+    private float recoil = 0f;
+    private float halfRecoil = 0f;
+
+    private void Update()
+    {
+        RecoilPivot();
+        ChangeFov();
+    }
+
     //발사 코드
-    public void FireEffects(WeaponInstance weapon)
+    public void FireEffects()
     {
         muzzleFlash.Play();
 
-        FireRecoil(weapon);
+        FireRecoil();
     }
 
     //발사 할 때 반동
-    public void FireRecoil(WeaponInstance weapon)
+    public void FireRecoil()
     {
-        //반동 추가
-        float recoil = weapon.FinalRecoil() / 200f;
-        float halfRecoil = recoil / 2f;
         targetPos += new Vector2(Random.Range(-halfRecoil, halfRecoil), recoil);
     }
 
@@ -56,34 +63,42 @@ public class PlayerScreenEffects : MonoBehaviour
         pivot.localPosition = new Vector3(-currentPos.x, currentPos.y, 0f);
     }
 
+    //무기 변경 시마다 반동 세기 설정
+    public void SetRecoil(float recoil)
+    {
+        this.recoil = recoil / 200f;
+        halfRecoil = this.recoil / 2f;
+    }
+
     //현재 탄약 텍스트
-    public void MagazineTextUpdate(float currentMagazine)
+    public void UpdateAmmoText(float currentAmmo)
     {
-        magazineText.text = $"{currentMagazine}";
+        AmmoText.text = $"{currentAmmo}";
     }
 
-    //재장전 텍스트
-    void ReloadTextUpdate(bool isReload)
+    public void ShowReloadText()
     {
-        if(isReload)
-        {
-            reloadText.text = $"Reload...";
-            //재장전 시작 시 텍스트
-            reloadText.gameObject.SetActive(true);
-        }
-        else
-        {
-            //재장전 완료 시 텍스트
-            reloadText.gameObject.SetActive(false);
-        }
+        reloadText.text = $"Reload...";
+        //재장전 시작 시 텍스트
+        reloadText.gameObject.SetActive(true);
     }
 
-
-    //조준 기능
-    public void AimCheck(bool isAiming)
+    public void HideReloadText()
     {
-        float currentFov = isAiming ? minFov : maxFov;
+        //재장전 완료 시 텍스트
+        reloadText.gameObject.SetActive(false);
+    }
+
+    //화면 확대, 축소
+    void ChangeFov()
+    {
         cinemachineCamera.Lens.FieldOfView =
             Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, currentFov, Time.deltaTime * aimSpeed);
+    }
+
+    //조준 했는지 체크
+    public void CheckAim(bool isAiming)
+    {
+        currentFov = isAiming ? minFov : maxFov;
     }
 }

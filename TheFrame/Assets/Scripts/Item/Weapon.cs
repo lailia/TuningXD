@@ -18,7 +18,7 @@ public class Weapon : ItemData
     public float Rpm;                     //연사력
     public float Recoil;                 //반동
     public float Accuracy;                //명중률
-    public float Magazine;               //탄창 용량
+    public float Ammo;               //탄약량
     public float Pellet;                    //한번 발사 시 발사될 총알 갯수
     public float Range;                   //사거리
     public float ReloadTime;              //재장전 시간

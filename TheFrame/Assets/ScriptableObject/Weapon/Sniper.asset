@@ -21,7 +21,7 @@ MonoBehaviour:
   Rpm: 100
   Recoil: 80
   Accuracy: 80
-  Magazine: 10
+  Ammo: 5
   Pellet: 1
   Range: 50
   ReloadTime: 3

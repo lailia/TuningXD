@@ -13,7 +13,7 @@ public class CrossHairController : MonoBehaviour
     private float add;                  //조준 중 감소할 거리
 
     //무기 교체 시 수치 세팅 메서드
-    public void SpreadSet(WeaponInstance weapon)
+    public void SetSpread(WeaponInstance weapon)
     {
         minSpread = weapon.FinalRecoil() * ((100f - weapon.FinalAccuracy()) / 100f);
         maxSpread = weapon.FinalRecoil() * 2f;
@@ -22,7 +22,7 @@ public class CrossHairController : MonoBehaviour
     }
 
     //실시간 조준점 변경 메서드
-    public void SpreadUpdate(bool isMove, bool isAim)
+    public void UpdateSpread(bool isMove, bool isAim)
     {
         //움직일 때 
         move = isMove ? 20f : 0f;

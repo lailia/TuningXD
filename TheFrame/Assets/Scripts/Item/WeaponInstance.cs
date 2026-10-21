@@ -8,7 +8,7 @@ public class WeaponInstance : ItemInstance
     public float RpmMultiplier { get; private set; }
     public float RecoilMultiplier { get; private set; }
     public float AccuracyMultiplier { get; private set; }
-    public float MagazineMultiplier { get; private set; }
+    public float AmmoMultiplier { get; private set; }
     public float ReloadMultiplier { get; private set; }
     public float NoiseMultiplier { get; private set; }
 
@@ -16,12 +16,12 @@ public class WeaponInstance : ItemInstance
     private float PlusRpm;
     private float PlusRecoil;
     private float PlusAccuracy;
-    private float PlusMagazine;
+    private float PlusAmmo;
     private float PlusReload;
     private float PlusNoise;
 
     //현재 남은 총알
-    public float CurrentMagazine { get; private set; }
+    public float CurrentAmmo { get; private set; }
 
     //현재 발사 쿨타임
     public float FireCooldown { get; private set; }
@@ -47,7 +47,7 @@ public class WeaponInstance : ItemInstance
         RpmMultiplier = weaponIns.RpmMultiplier;
         RecoilMultiplier = weaponIns.RecoilMultiplier;
         AccuracyMultiplier = weaponIns.AccuracyMultiplier;
-        MagazineMultiplier = weaponIns.MagazineMultiplier;
+        AmmoMultiplier = weaponIns.AmmoMultiplier;
         ReloadMultiplier = weaponIns.ReloadMultiplier;
         NoiseMultiplier = weaponIns.NoiseMultiplier;
 
@@ -68,7 +68,7 @@ public class WeaponInstance : ItemInstance
         RpmMultiplier = Random.Range(0.8f, 1.2f);
         RecoilMultiplier = Random.Range(0.8f, 1.2f);
         AccuracyMultiplier = Random.Range(0.8f, 1.2f);
-        MagazineMultiplier = Random.Range(0.8f, 1.2f);
+        AmmoMultiplier = Random.Range(0.8f, 1.2f);
         ReloadMultiplier = Random.Range(0.8f, 1.2f);
         NoiseMultiplier = Random.Range(0.8f, 1.2f);
 
@@ -144,7 +144,7 @@ public class WeaponInstance : ItemInstance
         RpmMultiplier = weapon.RpmMultiplier;
         RecoilMultiplier = weapon.RecoilMultiplier;
         AccuracyMultiplier = weapon.AccuracyMultiplier;
-        MagazineMultiplier = weapon.MagazineMultiplier;
+        AmmoMultiplier = weapon.AmmoMultiplier;
         ReloadMultiplier = weapon.ReloadMultiplier;
         NoiseMultiplier = weapon.NoiseMultiplier;
 
@@ -152,7 +152,7 @@ public class WeaponInstance : ItemInstance
         PlusRpm = weapon.PlusRpm;
         PlusRecoil = weapon.PlusRecoil;
         PlusAccuracy = weapon.PlusAccuracy;
-        PlusMagazine = weapon.PlusMagazine;
+        PlusAmmo = weapon.PlusAmmo;
         PlusReload = weapon.PlusReload;
         PlusNoise = weapon.PlusNoise;
 
@@ -171,25 +171,12 @@ public class WeaponInstance : ItemInstance
                 FireCooldown = 0f;
             }
         }
-
-        if(IsReloading)
-        {
-            if(CurrentReloadTime>0f)
-            {
-                CurrentReloadTime -= deltaTime;
-
-                if(CurrentReloadTime<0f)
-                {
-                    FinishReload();
-                }
-            }
-        }
     }
 
     //현재 무기가 발사가 가능한 상태인지 확인
     public bool CanFire()
     {
-        if (CurrentMagazine <= 0f)
+        if (CurrentAmmo <= 0f)
             return false;
         if (FireCooldown > 0f)
             return false;
@@ -205,7 +192,7 @@ public class WeaponInstance : ItemInstance
         if (!CanFire())
             return false;
 
-        CurrentMagazine--;
+        CurrentAmmo--;
 
         FireCooldown = 1f / (FinalRpm() / 60f);
 
@@ -217,7 +204,7 @@ public class WeaponInstance : ItemInstance
     {
         if (IsReloading)
             return false;
-        if (CurrentMagazine >= FinalMagazine())
+        if (CurrentAmmo >= FinalAmmo())
             return false;
 
         return true;
@@ -239,21 +226,41 @@ public class WeaponInstance : ItemInstance
         if (!IsReloading)
             return;
 
-        CurrentMagazine = FinalMagazine();
+        Reload();
         IsReloading = false;
+    }
+
+    //재장전 진행 시간
+    public bool ReloadTick(float deltaTime)
+    {
+        if (IsReloading)
+        {
+            if (CurrentReloadTime > 0f)
+            {
+                CurrentReloadTime -= deltaTime;
+
+                if (CurrentReloadTime < 0f)
+                {
+                    FinishReload();
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void Reload()
     {
-        CurrentMagazine = FinalMagazine();
+        CurrentAmmo = FinalAmmo();
     }
 
     public bool Shoot()
     {
-        if (CurrentMagazine <= 0)
+        if (CurrentAmmo <= 0)
             return false;
 
-        CurrentMagazine--;
+        CurrentAmmo--;
         return true;
     }
 
@@ -262,7 +269,7 @@ public class WeaponInstance : ItemInstance
         PlusDamage = 0f;
         PlusRecoil = 0f;
         PlusAccuracy = 0f;
-        PlusMagazine = 0f;
+        PlusAmmo = 0f;
         PlusReload = 0f;
         PlusReload = 0f;
         PlusNoise = 0f;
@@ -286,7 +293,7 @@ public class WeaponInstance : ItemInstance
                             PlusAccuracy += statusData.Value;
                             break;
                         case AttachmentStatusType.extraMagazine:
-                            PlusMagazine += statusData.Value;
+                            PlusAmmo += statusData.Value;
                             break;
                         case AttachmentStatusType.extraReloadTime:
                             PlusReload += statusData.Value;
@@ -326,9 +333,9 @@ public class WeaponInstance : ItemInstance
         return FinalStat(weapon.Accuracy, AccuracyMultiplier, PlusAccuracy);
     }
 
-    public float FinalMagazine()
+    public float FinalAmmo()
     {
-        return FinalStat(weapon.Magazine, MagazineMultiplier, PlusMagazine);
+        return FinalStat(weapon.Ammo, AmmoMultiplier, PlusAmmo);
     }
 
     public float FinalPellet()
@@ -359,7 +366,7 @@ public class WeaponInstance : ItemInstance
         sb.AppendLine($"Rpm : {FinalRpm()}");                                      //rpm
         sb.AppendLine($"Recoil : {FinalRecoil()}");                //recoil
         sb.AppendLine($"Accuracy : {FinalAccuracy()}");            //accuracy
-        sb.AppendLine($"Magazine : {FinalMagazine()}");            //magazine
+        sb.AppendLine($"Ammo : {FinalAmmo()}");            //Ammo
         sb.AppendLine($"ReloadTime : {FinalReloadTime()}");        //reloadtime
         return sb.ToString();
     }

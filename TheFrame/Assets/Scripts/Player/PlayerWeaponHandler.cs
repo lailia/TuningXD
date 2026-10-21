@@ -9,9 +9,6 @@ public class PlayerWeaponHandler : MonoBehaviour
     //조준중인지 체크
     bool isAiming = false;
 
-    //무기
-    public WeaponInstance weapon;
-
     //무기 컨트롤러
     public WeaponController weaponController;
 
@@ -21,32 +18,47 @@ public class PlayerWeaponHandler : MonoBehaviour
     //크로스 헤어 컨트롤러
     public CrossHairController crossHairController;
 
-    //총구 위치
-    public Transform ShootTransform;
-
     private void Update()
     {
-        //반동 제어
-        playerScreenEffects.RecoilPivot();
-
-        weapon.Tick(Time.deltaTime);
+        Fire();
+        FinishReload();
     }
 
     //발사 실행
-    public void Fire(float lookDistance)
+    public void Fire()
     {
         if (isFire)
         {
-            if (weapon.TryFire())
+            if(weaponController.weapon.weapon!=null)
             {
-                playerScreenEffects.FireEffects(weapon);
-                Shoot(crossHairController.SpreadCalculater(), lookDistance);
+                if (weaponController.weapon.TryFire())
+                {
+                    //총구 화염, 화면 반동 등 무기 관련 이펙트
+                    playerScreenEffects.FireEffects();
+
+                    //발사 기능
+                    Shoot(crossHairController.SpreadCalculater(), weaponController.weapon.FinalRange());
+
+                    //현재 남은 탄약 텍스트
+                    playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
+                }
+                else
+                {
+                    if (weaponController.weapon.CurrentAmmo <= 0)
+                    {
+                        StartReload();
+                    }
+                }
             }
         }
     }
 
-    void Shoot(float current, float lookDistance)
+    void Shoot(float current, float shootRange)
     {
+        RaycastHit hit;
+
+        Vector3 targetPoint;
+
         //레이를 쏠 시작점 구하기
         Vector2 center = new Vector2(Screen.width, Screen.height) * 0.5f;
         Vector2 spreadOffset = Random.insideUnitCircle * current;
@@ -54,26 +66,46 @@ public class PlayerWeaponHandler : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
 
-        Debug.DrawRay(ray.origin, ray.direction*100f, Color.red);
+        if (Physics.Raycast(ray, out hit, shootRange))
+        {
+            targetPoint = hit.point;
+        }
+        else
+        {
+            targetPoint = ray.origin + ray.direction * shootRange;
+        }
 
-        weaponController.Shoot(ray, ShootTransform, lookDistance);
+        weaponController.Shoot(targetPoint);
     }
     
-    //재장전
-    public void Reload()
+    //재장전 시작
+    public void StartReload()
     {
-        weaponController.Reload(weapon);
+        weaponController.StartReload();
+        playerScreenEffects.ShowReloadText();
+    }
+    
+    //재장전 종료
+    void FinishReload()
+    {
+        if (weaponController.Reloading(Time.deltaTime))
+        {
+            playerScreenEffects.HideReloadText();      
+            playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
+        }
     }
 
-    public void WeaponSet(WeaponInstance weapon)
+    public void SetWeapon(WeaponInstance weapon)
     {
-        crossHairController.SpreadSet(weapon);
-        this.weapon = weapon;
+        crossHairController.SetSpread(weapon);
+        weaponController.SetWeapon(weapon);
+        playerScreenEffects.SetRecoil(weapon.FinalRecoil());
+        playerScreenEffects.UpdateAmmoText(weapon.CurrentAmmo);
     }
 
-    public void CrossHairUpdate(bool isMove)
+    public void UpdateCrossHair(bool isMove)
     {
-        crossHairController.SpreadUpdate(isMove, isAiming);
+        crossHairController.UpdateSpread(isMove, isAiming);
     }
 
     //오른쪽 클릭 했을 때 (조준)
@@ -88,7 +120,7 @@ public class PlayerWeaponHandler : MonoBehaviour
             isAiming = false;
         }
 
-        playerScreenEffects.AimCheck(isAiming);
+        playerScreenEffects.CheckAim(isAiming);
     }
 
     //왼쪽 클릭 했을 때 (공격)
@@ -108,7 +140,7 @@ public class PlayerWeaponHandler : MonoBehaviour
     {
         if(context.performed)
         {
-            Reload();
+            StartReload();
         }
     }
 }

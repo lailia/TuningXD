@@ -32,7 +32,7 @@ public class Equipment : MonoBehaviour
             }
 
             mainWeapon = weapon;
-            player.WeaponSet(mainWeapon);
+            player.SetWeapon(mainWeapon);
         }
         else if (item is ArmorInstance armor)
         {
@@ -42,7 +42,7 @@ public class Equipment : MonoBehaviour
             }
 
             bodyArmor = armor;
-            player.ArmorSet(bodyArmor);
+            player.SetArmor(bodyArmor);
         }
         ChangeImage();
     }
@@ -65,14 +65,14 @@ public class Equipment : MonoBehaviour
             mainWeapon = null;
             mainWeaponImage.sprite = mainWeaponDefaultSprite;
             mainWeaponImage.color = baseColor;
-            player.WeaponSet(mainWeapon);
+            player.SetWeapon(mainWeapon);
         }
         else if (item.Data.itemType==ItemType.armor)
         {
             bodyArmor = null;
             bodyArmorImage.sprite = bodyArmorDefaultSprite;
             bodyArmorImage.color = baseColor;
-            player.ArmorSet(bodyArmor);
+            player.SetArmor(bodyArmor);
         }
     }
 

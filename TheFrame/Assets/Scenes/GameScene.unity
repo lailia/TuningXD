@@ -3885,6 +3885,7 @@ GameObject:
   m_Component:
   - component: {fileID: 429835082}
   - component: {fileID: 429835085}
+  - component: {fileID: 429835086}
   - component: {fileID: 429835084}
   m_Layer: 0
   m_Name: Weapon_R
@@ -5063,12 +5064,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71a5a832aff5f93419c1591161467283, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerWeaponHandler
-  weapon:
-    data: {fileID: 0}
-  weaponController: {fileID: 1896443209}
+  weaponController: {fileID: 429835086}
   playerScreenEffects: {fileID: 1830260238}
   crossHairController: {fileID: 719679928}
+--- !u!114 &429835086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429482916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9540a13877d418d4ab1e20dc946b3382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  maxAngle: 10
+  weapon:
+    data: {fileID: 0}
   ShootTransform: {fileID: 429805410}
+  bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
+  bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
+  poolManager: {fileID: 599052317}
 --- !u!4 &429843434
 Transform:
   m_ObjectHideFlags: 0
@@ -17033,10 +17050,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 577e0811642c5ff4c8292b3240632817, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerScreenEffects
-  magazineText: {fileID: 2015209034}
+  AmmoText: {fileID: 2015209034}
   reloadText: {fileID: 1225091942}
   muzzleFlash: {fileID: 1476364253}
-  cinemachineCamera: {fileID: 0}
+  cinemachineCamera: {fileID: 474968529}
   pivot: {fileID: 1937308627}
 --- !u!1 &1851370868
 GameObject:
@@ -17372,54 +17389,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1865808174}
   m_CullTransparentMesh: 1
---- !u!1 &1896443208
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1896443210}
-  - component: {fileID: 1896443209}
-  m_Layer: 0
-  m_Name: WeaponController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1896443209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1896443208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9540a13877d418d4ab1e20dc946b3382, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
-  maxAngle: 10
-  bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
-  bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
-  poolManager: {fileID: 599052317}
---- !u!4 &1896443210
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1896443208}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1909542890
 GameObject:
   m_ObjectHideFlags: 0
@@ -17796,19 +17765,7 @@ MonoBehaviour:
     m_ActionId: 852140f2-7766-474d-8707-702459ba45f3
     m_ActionName: 'Player/Interact[/Keyboard/e]'
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1246927367}
-        m_TargetAssemblyTypeName: Inventory, Assembly-CSharp
-        m_MethodName: OnSlotUpdate
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: 27c5f898-bc57-4ee1-8800-db469aca5fe3
     m_ActionName: 'Player/Crouch[/Keyboard/c]'
   - m_PersistentCalls:
@@ -18331,7 +18288,7 @@ GameObject:
   - component: {fileID: 2015209035}
   - component: {fileID: 2015209034}
   m_Layer: 5
-  m_Name: MagazineText
+  m_Name: AmmoText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18877,5 +18834,4 @@ SceneRoots:
   - {fileID: 1423974373}
   - {fileID: 599052318}
   - {fileID: 992903967}
-  - {fileID: 1896443210}
   - {fileID: 1233226253}
