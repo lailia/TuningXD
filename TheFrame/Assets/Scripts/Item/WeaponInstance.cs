@@ -211,13 +211,15 @@ public class WeaponInstance : ItemInstance
     }
 
     //재장전 시작
-    public void StartReload()
+    public bool StartReload()
     {
         if (!CanReload())
-            return;
+            return false;
 
         CurrentReloadTime = FinalReloadTime();
         IsReloading = true;
+
+        return true;
     }
 
     //재장전 종료

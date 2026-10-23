@@ -5086,6 +5086,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
   bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
   poolManager: {fileID: 599052317}
+  muzzleFlash: {fileID: 198792769130808804, guid: 4543ab5e3d405ec40a8d4e9aa5165030, type: 3}
 --- !u!4 &429843434
 Transform:
   m_ObjectHideFlags: 0
@@ -9395,8 +9396,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDetectionZone
   eyeTransform: {fileID: 956007440}
-  targetHeadTransform: {fileID: 2017643838}
-  targetBodyTransform: {fileID: 553927391}
+  targetHeadTransform: {fileID: 0}
+  targetBodyTransform: {fileID: 0}
+  isTargetInDetectZone: 0
   detectionCollider: {fileID: 956007439}
 --- !u!1 &973377397
 GameObject:
@@ -10137,7 +10139,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1062270581}
   m_Layer: 0
-  m_Name: "\u2606\u2606\u2606\uD544\uB3C5 !!! WeaponController\uBD80\uD130 \uC2DC\uC791"
+  m_Name: "\u2606\u2606\u2606EnemyWeaponController\uC758 \uBC1C\uC0AC\uBD80\uD130"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14585,11 +14587,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4639870034382688, guid: 4543ab5e3d405ec40a8d4e9aa5165030, type: 3}
   m_PrefabInstance: {fileID: 2015935174}
   m_PrefabAsset: {fileID: 0}
---- !u!198 &1476364253 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 198792769130808804, guid: 4543ab5e3d405ec40a8d4e9aa5165030, type: 3}
-  m_PrefabInstance: {fileID: 2015935174}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1479579662
 GameObject:
   m_ObjectHideFlags: 0
@@ -17052,7 +17049,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerScreenEffects
   AmmoText: {fileID: 2015209034}
   reloadText: {fileID: 1225091942}
-  muzzleFlash: {fileID: 1476364253}
   cinemachineCamera: {fileID: 474968529}
   pivot: {fileID: 1937308627}
 --- !u!1 &1851370868
@@ -18333,7 +18329,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

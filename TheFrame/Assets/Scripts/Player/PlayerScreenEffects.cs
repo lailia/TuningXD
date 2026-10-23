@@ -11,9 +11,6 @@ public class PlayerScreenEffects : MonoBehaviour
     //재장전 텍스트
     public TextMeshProUGUI reloadText;
 
-    //총구 화염
-    public ParticleSystem muzzleFlash;
-    
     //카메라
     public CinemachineCamera cinemachineCamera;
 
@@ -37,14 +34,6 @@ public class PlayerScreenEffects : MonoBehaviour
     {
         RecoilPivot();
         ChangeFov();
-    }
-
-    //발사 코드
-    public void FireEffects()
-    {
-        muzzleFlash.Play();
-
-        FireRecoil();
     }
 
     //발사 할 때 반동

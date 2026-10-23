@@ -25,6 +25,9 @@ public class WeaponController : MonoBehaviour
     //풀매니저
     public ObjectPoolManager poolManager;
 
+    //총구 화염
+    public ParticleSystem muzzleFlash;
+
     private void Update()
     {
         //총의 발사 쿨타임
@@ -44,6 +47,8 @@ public class WeaponController : MonoBehaviour
     //발사
     public void Shoot(Vector3 targetPoint)
     {
+        muzzleFlash.Play();
+
         //목표 위치-----------------------
         //Vector3 v = Camera.main.transform.position + (Camera.main.transform.forward * lookDistance);
 
@@ -103,9 +108,33 @@ public class WeaponController : MonoBehaviour
     }
 
     //재장전
-    public void StartReload()
+    public bool TryReload()
     {
-        weapon.StartReload();
+        return weapon.StartReload();
     }
 
+    //발사 할 수 있는지 체크
+    public bool TryFire()
+    {
+        if (weapon.weapon == null)
+        {
+            return false;
+        }
+
+        return weapon.TryFire();
+    }
+
+    //지금 재장전 중인지 체크
+    public bool IsReloading()
+    {
+        return weapon.IsReloading;
+    }
+
+    public bool IsAmmoEmpty()
+    {
+        if (weapon.weapon == null)
+            return false;
+
+        return weapon.CurrentAmmo <= 0f;
+    }
 }

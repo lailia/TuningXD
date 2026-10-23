@@ -5,9 +5,9 @@ using UnityEngine.InputSystem;
 public class PlayerWeaponHandler : MonoBehaviour
 {
     //발사 가능한지 체크
-    bool isFire = false;
+    bool isAttackInput = false;
     //조준중인지 체크
-    bool isAiming = false;
+    bool isAimInput = false;
 
     //무기 컨트롤러
     public WeaponController weaponController;
@@ -20,35 +20,40 @@ public class PlayerWeaponHandler : MonoBehaviour
 
     private void Update()
     {
-        Fire();
-        FinishReload();
+        // 발사 버튼을 누르고 있으면
+        // 틱 계산해서 발사가 된다.
+
+        if(isAttackInput)
+        {
+            Fire();
+        }
+
+        // 재장전 중일 때만, 재장전이 끝났는지를 체크할 거다.
+        if (weaponController.IsReloading())
+        {
+            CheckReloadIsFinish();
+        }
     }
 
     //발사 실행
     public void Fire()
     {
-        if (isFire)
+        if (weaponController.TryFire())
         {
-            if(weaponController.weapon.weapon!=null)
+            //플레이어 전용 화면 반동
+            playerScreenEffects.FireRecoil();
+
+            //발사 기능
+            Shoot(crossHairController.SpreadCalculater(), weaponController.weapon.FinalRange());
+
+            //현재 남은 탄약 텍스트
+            playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
+        }
+        else
+        {
+            if (weaponController.IsAmmoEmpty())
             {
-                if (weaponController.weapon.TryFire())
-                {
-                    //총구 화염, 화면 반동 등 무기 관련 이펙트
-                    playerScreenEffects.FireEffects();
-
-                    //발사 기능
-                    Shoot(crossHairController.SpreadCalculater(), weaponController.weapon.FinalRange());
-
-                    //현재 남은 탄약 텍스트
-                    playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
-                }
-                else
-                {
-                    if (weaponController.weapon.CurrentAmmo <= 0)
-                    {
-                        StartReload();
-                    }
-                }
+                TryReload();
             }
         }
     }
@@ -77,16 +82,16 @@ public class PlayerWeaponHandler : MonoBehaviour
 
         weaponController.Shoot(targetPoint);
     }
-    
+
     //재장전 시작
-    public void StartReload()
+    public void TryReload()
     {
-        weaponController.StartReload();
-        playerScreenEffects.ShowReloadText();
+        if (weaponController.TryReload())
+            playerScreenEffects.ShowReloadText();
     }
     
     //재장전 종료
-    void FinishReload()
+    void CheckReloadIsFinish() // CheckReloadIsFinish
     {
         if (weaponController.Reloading(Time.deltaTime))
         {
@@ -105,7 +110,7 @@ public class PlayerWeaponHandler : MonoBehaviour
 
     public void UpdateCrossHair(bool isMove)
     {
-        crossHairController.UpdateSpread(isMove, isAiming);
+        crossHairController.UpdateSpread(isMove, isAimInput);
     }
 
     //오른쪽 클릭 했을 때 (조준)
@@ -113,14 +118,14 @@ public class PlayerWeaponHandler : MonoBehaviour
     {
         if (context.performed)
         {
-            isAiming = true;
+            isAimInput = true;
         }
         else
         {
-            isAiming = false;
+            isAimInput = false;
         }
 
-        playerScreenEffects.CheckAim(isAiming);
+        playerScreenEffects.CheckAim(isAimInput);
     }
 
     //왼쪽 클릭 했을 때 (공격)
@@ -128,11 +133,11 @@ public class PlayerWeaponHandler : MonoBehaviour
     {
         if (context.performed)
         {
-            isFire = true;
+            isAttackInput = true;
         }
         else
         {
-            isFire = false;
+            isAttackInput = false;
         }
     }
 
@@ -140,7 +145,7 @@ public class PlayerWeaponHandler : MonoBehaviour
     {
         if(context.performed)
         {
-            StartReload();
+            TryReload();
         }
     }
 }
