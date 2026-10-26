@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("PlayerMove")]
     public float speed;                     //이동 속도
-    public float sprintSpeed;               //달릴 시 추가 속도
+    public float currentSpeed;               //현재 속도
     public float gravity;                   //중력 가속도
     public CharacterController caracterController;  //캐릭터 컨트롤러 컴포넌트
     //public JoyStick joystick;
@@ -20,37 +20,36 @@ public class PlayerController : MonoBehaviour
     private Vector2 dir;                        //방향
     private Vector3 moveInput;                  //속도
 
-    [Header("Animation")]
-    public Animator soldierAni;                     //애니메이터
     public Transform spine;                         //상체 트랜스폼
 
-    [Header("Aim")]
-    private bool isRunning;
+    //움직이는지 체크
+    bool isMoving = false;
+    //달리는 중인지 체크
+    bool isRunning = false;
+    //발사 버튼을 눌렀는지 체크
+    bool isAttackInput = false;
+    //조준 버튼을 눌렀는지 체크
+    bool isAimInput = false;
+    //재장전 버튼을 눌렀는지 체크
+    bool isReloadInput = false;
 
-    private void LateUpdate()
-    {
-        
-    }
+    public bool IsMoving => isMoving;
+    public bool IsRunning => isRunning;
+    public bool IsAttackInput => isAttackInput;
+    public bool IsAimInput => isAimInput;
+    public bool IsReloadInput => isReloadInput;
 
     //플레이어 이동
-    public bool PlayerMove()
+    public Vector2 PlayerMove()
     {
-        soldierAni.SetFloat("X", dir.x);
-        soldierAni.SetFloat("Y", dir.y);
-
         if (dir.y > 0)
         {
-            float s = dir.y * speed;
-            soldierAni.SetFloat("Speed", s);
-            soldierAni.SetBool("Aiming", !isRunning);
             if (isRunning)
-                sprintSpeed = speed * .5f;
+                currentSpeed = speed * 1.5f;
         }
         else
         {
-            sprintSpeed = 0f;
-            soldierAni.SetFloat("Speed", 0f);
-            soldierAni.SetBool("Aiming", true);
+            currentSpeed = 0f;
         }
 
         moveInput = transform.forward * dir.y + transform.right * dir.x + transform.up * moveInput.y;
@@ -60,9 +59,9 @@ public class PlayerController : MonoBehaviour
         else
             moveInput.y = 0;
 
-        caracterController.Move(moveInput * (speed + sprintSpeed) * Time.deltaTime);
+        caracterController.Move(moveInput * (currentSpeed) * Time.deltaTime);
 
-        return (dir != Vector2.zero);
+        return dir;
     }
 
     //플레이어가 바라보는 방향으로 회전
@@ -78,10 +77,65 @@ public class PlayerController : MonoBehaviour
         //spine.LookAt(dir);
     }
 
+    public bool ReloadInput()
+    {
+        bool tryReload = false;
+
+        if(isReloadInput)
+        {
+            tryReload = true;
+            isReloadInput = false;
+        }
+
+        return tryReload;
+    }
+
+    //오른쪽 클릭 했을 때 (조준)
+    public void OnRightClick(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isAimInput = true;
+        }
+        else
+        {
+            isAimInput = false;
+        }
+    }
+
+    //왼쪽 클릭 했을 때 (공격)
+    public void OnLeftClick(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isAttackInput = true;
+        }
+        else
+        {
+            isAttackInput = false;
+        }
+    }
+
+    public void OnReload(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isReloadInput = true;
+        }
+    }
+
     //WASD or 방향키 눌렀을 때 (이동)
     public void OnMove(InputAction.CallbackContext context)
     {
-        dir = context.ReadValue<Vector2>();
+        if(context.performed)
+        {
+            dir = context.ReadValue<Vector2>();
+            isMoving = true;
+        }
+        else
+        {
+            isMoving = false;
+        }
     }
 
     //왼쪽 쉬프트 눌렀을 때(달리기)

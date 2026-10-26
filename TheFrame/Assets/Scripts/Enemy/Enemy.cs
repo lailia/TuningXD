@@ -36,8 +36,6 @@ public class Enemy : MonoBehaviour
 
     //주 무기
     public Weapon weaponData;
-    [SerializeField]
-    private WeaponInstance weapon;
 
     //상태
     [SerializeField]
@@ -54,6 +52,9 @@ public class Enemy : MonoBehaviour
     //감각 범위
     public EnemyDetectionZone detectionZone;
 
+    //무기 핸들러
+    public EnemyWeaponHandler enemyWeaponHandler;
+
     //소리 감지
     public Vector3 noiseHeardPos;
 
@@ -69,17 +70,11 @@ public class Enemy : MonoBehaviour
     //전투 미션 관련--------------------------------------
     //마지막 위치
     private Vector3 lastPosition;
-    //private bool is//-----------------------------------------
-    //전투 상태 한번만 실행되는 코드 작성 필요
-
-    [SerializeField]
-    private Transform targetTransform;
 
     //적 기능-----------------------------
     //피격
     //상태 변경
 
-    //
     //이동
     //사격/재장전
     //사망
@@ -107,10 +102,12 @@ public class Enemy : MonoBehaviour
         agent.SetDestination(patrolPoint[patrolIndex]);
         ani.SetFloat("Y", 1f);
 
-        weapon = new WeaponInstance(weaponData);
+        detectionZone.Init(20f);
+
+        WeaponInstance weapon = new WeaponInstance(weaponData);
         weapon.Init();
 
-        detectionZone.Init(20f);
+        enemyWeaponHandler.Init(weapon);
     }
 
     //EnemyManager에서 생성할 때 사용하게 상세 설정 가능하게
@@ -123,9 +120,9 @@ public class Enemy : MonoBehaviour
     //    agent.SetDestination(patrolPoint[patrolIndex]);
     //    ani.SetFloat("Y", 1f);
 
-    //    this.weapon = weapon;
-
     //    detectionZone.Init(viewDistance);
+
+    //    enemyWeaponHandler.Init(weapon);
     //}
 
     void Update()
@@ -133,18 +130,18 @@ public class Enemy : MonoBehaviour
         switch(mission)
         {
             case EnemyMission.patrol:
-                //if (detectionZone.isTargetDetected)
-                //{
-                //    mission = EnemyMission.normalBattle;
-                //    state = EnemyState.attack;
-                //}
+                if (detectionZone.isTargetDetected)
+                {
+                    mission = EnemyMission.normalBattle;
+                    state = EnemyState.attack;
+                }
                 break;
             case EnemyMission.search:
-                //if (detectionZone.isTargetDetected)
-                //{
-                //    mission = EnemyMission.normalBattle;
-                //    state = EnemyState.attack;
-                //}
+                if (detectionZone.isTargetDetected)
+                {
+                    mission = EnemyMission.normalBattle;
+                    state = EnemyState.attack;
+                }
                 break;
             case EnemyMission.watchGuard:
                 break;
@@ -168,6 +165,7 @@ public class Enemy : MonoBehaviour
                 UpdateMovement();
                 break;
             case EnemyState.attack:
+                UpdateAttack();
                 break;
             case EnemyState.reload:
                 break;
@@ -296,7 +294,24 @@ public class Enemy : MonoBehaviour
 
     void UpdateAttack()
     {
-        
+        if(detectionZone.isTargetDetected)
+        {
+            Vector3 targetPos = detectionZone.targetTransform.position;
+
+            ani.SetFloat("Y", 0f);
+
+            Vector3 targetPoint = targetPos - transform.position;
+            Quaternion targetRotation = Quaternion.LookRotation(targetPoint);
+
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
+
+            enemyWeaponHandler.Fire(detectionZone.targetTransform.position);
+        }
+    }
+
+    void UpdateReload(float deltaTime)
+    {
+        enemyWeaponHandler.CheckReloadIsFinish(deltaTime);
     }
 
     public void HeardNoise(Vector3 heardSoundPos, noiseType type)

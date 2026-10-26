@@ -41,7 +41,7 @@ public class CrossHairController : MonoBehaviour
     }
 
     //발사 시 조준점 벌어지는 메서드
-    public float SpreadCalculater()
+    public float SpreadCalculator()
     {
         float current = currentSpread;
 

@@ -4,11 +4,6 @@ using UnityEngine.InputSystem;
 //플레이어의 무기 관리 클래스
 public class PlayerWeaponHandler : MonoBehaviour
 {
-    //발사 가능한지 체크
-    bool isAttackInput = false;
-    //조준중인지 체크
-    bool isAimInput = false;
-
     //무기 컨트롤러
     public WeaponController weaponController;
 
@@ -23,11 +18,6 @@ public class PlayerWeaponHandler : MonoBehaviour
         // 발사 버튼을 누르고 있으면
         // 틱 계산해서 발사가 된다.
 
-        if(isAttackInput)
-        {
-            Fire();
-        }
-
         // 재장전 중일 때만, 재장전이 끝났는지를 체크할 거다.
         if (weaponController.IsReloading())
         {
@@ -36,7 +26,7 @@ public class PlayerWeaponHandler : MonoBehaviour
     }
 
     //발사 실행
-    public void Fire()
+    public bool IsFire()
     {
         if (weaponController.TryFire())
         {
@@ -44,10 +34,12 @@ public class PlayerWeaponHandler : MonoBehaviour
             playerScreenEffects.FireRecoil();
 
             //발사 기능
-            Shoot(crossHairController.SpreadCalculater(), weaponController.weapon.FinalRange());
+            Shoot(crossHairController.SpreadCalculator(), weaponController.weapon.FinalRange());
 
             //현재 남은 탄약 텍스트
             playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
+
+            return true;
         }
         else
         {
@@ -56,6 +48,8 @@ public class PlayerWeaponHandler : MonoBehaviour
                 TryReload();
             }
         }
+
+        return false;
     }
 
     void Shoot(float current, float shootRange)
@@ -108,44 +102,9 @@ public class PlayerWeaponHandler : MonoBehaviour
         playerScreenEffects.UpdateAmmoText(weapon.CurrentAmmo);
     }
 
-    public void UpdateCrossHair(bool isMove)
+    public void UpdateCrossHair(bool isMove, bool isAimInput)
     {
         crossHairController.UpdateSpread(isMove, isAimInput);
-    }
-
-    //오른쪽 클릭 했을 때 (조준)
-    public void OnRightClick(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            isAimInput = true;
-        }
-        else
-        {
-            isAimInput = false;
-        }
-
         playerScreenEffects.CheckAim(isAimInput);
-    }
-
-    //왼쪽 클릭 했을 때 (공격)
-    public void OnLeftClick(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            isAttackInput = true;
-        }
-        else
-        {
-            isAttackInput = false;
-        }
-    }
-
-    public void OnReload(InputAction.CallbackContext context)
-    {
-        if(context.performed)
-        {
-            TryReload();
-        }
     }
 }

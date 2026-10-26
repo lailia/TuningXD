@@ -6,6 +6,9 @@ public class Player : MonoBehaviour
     //방어구
     public ArmorInstance armor;
 
+    //애니메이터
+    public Animator playerAni;                     
+
     //기본 스탯
     public float reduce;
     public float health;
@@ -20,7 +23,24 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        playerWeaponHandler.UpdateCrossHair(playerController.PlayerMove());
+        MoveAnimation(playerController.PlayerMove(),
+            playerController.currentSpeed,
+            playerController.IsRunning);
+
+        playerWeaponHandler.UpdateCrossHair(playerController.IsMoving, playerController.IsAimInput);
+
+        if(playerController.IsAttackInput)
+        {
+            if(playerWeaponHandler.IsFire())
+            {
+                FireAni();
+            }
+        }
+
+        if (playerController.ReloadInput())
+        {
+            playerWeaponHandler.TryReload();
+        }
     }
 
     private void LateUpdate()
@@ -54,4 +74,21 @@ public class Player : MonoBehaviour
         }
     }
 
+    void MoveAnimation(Vector2 dir, float speed, bool isRunning)
+    {
+        playerAni.SetFloat("X", dir.x);
+        playerAni.SetFloat("Y", dir.y);
+        playerAni.SetFloat("Speed", speed);
+        playerAni.SetBool("Aiming", !isRunning);
+    }
+
+    void FireAni()
+    {
+        playerAni.SetTrigger("Shoot");
+    }
+
+    void ReloadAni(bool reload)
+    {
+        playerAni.SetBool("Reload", reload);
+    }
 }

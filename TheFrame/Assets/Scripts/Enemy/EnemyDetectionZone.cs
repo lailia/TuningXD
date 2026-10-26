@@ -5,11 +5,6 @@ public class EnemyDetectionZone : MonoBehaviour
     //눈 위치
     public Transform eyeTransform;
 
-    //타겟의 머리, 몸통 위치
-    [SerializeField]
-    private Transform targetHeadTransform;
-    [SerializeField]
-    private Transform targetBodyTransform;
 
     //타겟이 발견됐는지 확인
     public bool isTargetDetected { get; private set; }
@@ -20,6 +15,12 @@ public class EnemyDetectionZone : MonoBehaviour
 
     //타겟의 transform
     public Transform targetTransform { get; private set; }
+
+    //타겟의 머리, 몸통 위치
+    [SerializeField]
+    private Transform targetHeadTransform;
+    [SerializeField]
+    private Transform targetBodyTransform;
 
     //시야
     public SphereCollider detectionCollider;

@@ -7357,18 +7357,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   weaponData: {fileID: 11400000, guid: 5cd8bd0bf60400642afb00726d25d806, type: 2}
-  weapon:
-    data: {fileID: 0}
   mission: 0
   state: 0
   agent: {fileID: 626226172}
   ani: {fileID: 1226136169}
   detectionZone: {fileID: 956007441}
+  enemyWeaponHandler: {fileID: 1233577776}
   noiseHeardPos: {x: 0, y: 0, z: 0}
   patrolPoint: []
   patrolIndex: 0
   patrolCheck: 1
-  targetTransform: {fileID: 0}
 --- !u!195 &626226172
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -9396,9 +9394,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDetectionZone
   eyeTransform: {fileID: 956007440}
+  isTargetInDetectZone: 0
   targetHeadTransform: {fileID: 0}
   targetBodyTransform: {fileID: 0}
-  isTargetInDetectZone: 0
   detectionCollider: {fileID: 956007439}
 --- !u!1 &973377397
 GameObject:
@@ -10139,7 +10137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1062270581}
   m_Layer: 0
-  m_Name: "\u2606\u2606\u2606EnemyWeaponController\uC758 \uBC1C\uC0AC\uBD80\uD130"
+  m_Name: "\u2606\u2606\u2606\uC801 \uACF5\uACA9 \uC0C1\uD0DC \uC81C\uC791"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13024,6 +13022,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1233212257}
+  - component: {fileID: 1233577776}
+  - component: {fileID: 1233577777}
   m_Layer: 0
   m_Name: Weapon_R
   m_TagString: Untagged
@@ -13031,6 +13031,39 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1233577776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233577775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d03259d3a687dd498b1d5fc237a72fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyWeaponHandler
+  weaponController: {fileID: 1233577777}
+--- !u!114 &1233577777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233577775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9540a13877d418d4ab1e20dc946b3382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  maxAngle: 10
+  weapon:
+    data: {fileID: 0}
+  ShootTransform: {fileID: 1233137909}
+  bulletPrefab: {fileID: 3235412048777965259, guid: b68ca1b8bb9029c44af23bb98096e872, type: 3}
+  bulletHolePrefab: {fileID: 2432995082755834440, guid: 2e51eac271e584d448b3861abe3941e6, type: 3}
+  poolManager: {fileID: 599052317}
+  muzzleFlash: {fileID: 198792769130808804, guid: 4543ab5e3d405ec40a8d4e9aa5165030, type: 3}
 --- !u!1 &1233582927
 GameObject:
   m_ObjectHideFlags: 0
@@ -17009,10 +17042,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   speed: 5
-  sprintSpeed: 0
+  currentSpeed: 0
   gravity: 5
   caracterController: {fileID: 1830260233}
-  soldierAni: {fileID: 420028718}
   spine: {fileID: 429908592}
 --- !u!114 &1830260237
 MonoBehaviour:
@@ -17028,6 +17060,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   armor:
     data: {fileID: 0}
+  playerAni: {fileID: 0}
   reduce: 0
   health: 0
   maxAmmo: 0
@@ -17137,7 +17170,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1858737767}
   m_Layer: 0
-  m_Name: "\u2606Enemy\uC758 \uC784\uBB34\uC640 \uC0C1\uD0DC \uAD00\uACC4 \uC815\uB9BD"
+  m_Name: "\u2606player\uC7AC\uC7A5\uC804 \uC2DC \uC560\uB2C8\uBA54\uC774\uC158 \uC2E4\uD589
+    \uC81C\uC791"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17742,8 +17776,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Look[/Mouse/delta]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 429835085}
-        m_TargetAssemblyTypeName: PlayerWeaponHandler, Assembly-CSharp
+      - m_Target: {fileID: 1830260236}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
         m_MethodName: OnLeftClick
         m_Mode: 0
         m_Arguments:
@@ -17846,8 +17880,8 @@ MonoBehaviour:
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 429835085}
-        m_TargetAssemblyTypeName: PlayerWeaponHandler, Assembly-CSharp
+      - m_Target: {fileID: 1830260236}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
         m_MethodName: OnRightClick
         m_Mode: 0
         m_Arguments:
@@ -17894,8 +17928,8 @@ MonoBehaviour:
     m_ActionName: 'Player/InvenSort[/Keyboard/tab]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 429835085}
-        m_TargetAssemblyTypeName: PlayerWeaponHandler, Assembly-CSharp
+      - m_Target: {fileID: 1830260236}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
         m_MethodName: OnReload
         m_Mode: 0
         m_Arguments:
