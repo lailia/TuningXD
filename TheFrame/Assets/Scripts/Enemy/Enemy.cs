@@ -127,7 +127,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        switch(mission)
+        switch (mission)
         {
             case EnemyMission.patrol:
                 if (detectionZone.isTargetDetected)
@@ -168,6 +168,7 @@ public class Enemy : MonoBehaviour
                 UpdateAttack();
                 break;
             case EnemyState.reload:
+                UpdateReload(Time.deltaTime);
                 break;
             case EnemyState.tracking:
                 break;
@@ -264,7 +265,7 @@ public class Enemy : MonoBehaviour
     void UpdateWatch()
     {
         ani.SetFloat("Y", 1f);
-        Vector3 soundDir = noiseHeardPos - transform.position;          
+        Vector3 soundDir = noiseHeardPos - transform.position;
         Quaternion targetRotation = Quaternion.LookRotation(soundDir);
 
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
@@ -294,6 +295,39 @@ public class Enemy : MonoBehaviour
 
     void UpdateAttack()
     {
+        if (detectionZone.isTargetDetected)
+        {
+            agent.isStopped = true;
+
+            Vector3 targetPos = detectionZone.targetTransform.position;
+
+            ani.SetFloat("Y", 0f);
+
+            Vector3 targetPoint = targetPos - transform.position;
+            Quaternion targetRotation = Quaternion.LookRotation(targetPoint);
+
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
+
+            if (enemyWeaponHandler.Fire(detectionZone.targetTransform.position))
+            {
+                ani.SetTrigger("Shoot");
+            }
+
+            if (enemyWeaponHandler.IsReload)
+            {
+                ani.SetBool("Reload", true);
+                state = EnemyState.reload;
+            }
+        }
+        else
+        {
+
+        }
+    }
+
+    //재장전 실행 상태
+    void UpdateReload(float deltaTime)
+    {
         if(detectionZone.isTargetDetected)
         {
             Vector3 targetPos = detectionZone.targetTransform.position;
@@ -305,13 +339,15 @@ public class Enemy : MonoBehaviour
 
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
 
-            enemyWeaponHandler.Fire(detectionZone.targetTransform.position);
-        }
-    }
+            enemyWeaponHandler.CheckReloadIsFinish(deltaTime);
 
-    void UpdateReload(float deltaTime)
-    {
-        enemyWeaponHandler.CheckReloadIsFinish(deltaTime);
+            if (!enemyWeaponHandler.IsReload)
+            {
+                ani.SetBool("Reload", false);
+                state = EnemyState.attack;
+                Debug.Log($"{state}");
+            }
+        }
     }
 
     public void HeardNoise(Vector3 heardSoundPos, noiseType type)

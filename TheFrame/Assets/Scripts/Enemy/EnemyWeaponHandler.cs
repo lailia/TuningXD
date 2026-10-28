@@ -2,9 +2,15 @@ using UnityEngine;
 
 public class EnemyWeaponHandler : MonoBehaviour
 {
-    float minAccuracy = 0f;     //최소 명중률
-    float maxAccuracy = 0f;     //최대 명중률
+    //최소 명중률
+    float minAccuracy = 0f;
+    //최대 명중률
+    float maxAccuracy = 0f;     
+    //현재 명중률
     float currentAccuracy = 0f;
+
+    //재장전 실행 중인지 확인
+    public bool IsReload { get; private set; }
 
     public WeaponController weaponController;
 
@@ -26,13 +32,14 @@ public class EnemyWeaponHandler : MonoBehaviour
     }
 
     //발사 실행
-    public void Fire(Vector3 targetPos)
+    public bool Fire(Vector3 targetPos)
     {
         //발사가 가능한지 체크
         if (weaponController.TryFire())
         {
             Shoot(targetPos);
             AccuracyClaculator();
+            return true;
         }
         else
         {
@@ -43,9 +50,12 @@ public class EnemyWeaponHandler : MonoBehaviour
                 {
                     //재장전 상태 실행
                     //재장전 애니메이션 실행
+                    IsReload = true;
                 }
             }
         }
+
+        return false;
     }
 
     // 여기부터 시작-------------------------------------------------------------------
@@ -60,13 +70,14 @@ public class EnemyWeaponHandler : MonoBehaviour
         weaponController.Shoot(targetPoint);
     }
 
+    //재장전이 끝났는지 체크
     public void CheckReloadIsFinish(float deltaTime)
     {
         if(weaponController.IsReloading())
         {
             if (weaponController.Reloading(deltaTime))
             {
-                //재장전 종료 실행
+                IsReload = false;
             }
         }
     }

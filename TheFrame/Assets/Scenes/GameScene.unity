@@ -17041,11 +17041,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5f13a5b0123045408fc4b4c5b57a7d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  speed: 5
-  currentSpeed: 0
-  gravity: 5
-  caracterController: {fileID: 1830260233}
-  spine: {fileID: 429908592}
+  player: {fileID: 1830260237}
 --- !u!114 &1830260237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17060,14 +17056,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   armor:
     data: {fileID: 0}
-  playerAni: {fileID: 0}
+  playerAni: {fileID: 420028718}
   reduce: 0
   health: 0
   maxAmmo: 0
-  speed: 0
+  speed: 5
+  currentSpeed: 0
+  gravity: 5
   lookDistance: 20
-  playerController: {fileID: 1830260236}
   playerWeaponHandler: {fileID: 429835085}
+  caracterController: {fileID: 1830260233}
+  spine: {fileID: 429908592}
 --- !u!114 &1830260238
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -67,9 +67,11 @@ public class WeaponController : MonoBehaviour
         float dis = Vector3.Distance(ShootTransform.position, targetPoint);
 
         //총구부터 시작하는 레이
-        Ray ray = new Ray(ShootTransform.position, fireDir);                             
+        Ray ray = new Ray(ShootTransform.position, fireDir);
 
-        if (Physics.Raycast(ray, out hit))
+        //Physics.DefaultRaycastLayers : 무시할 레이캐스트 레이어를 제외한 모든 레이어 검사
+        //QueryTriggerInteraction.Ignore : 트리거 콜라이더는 무시
+        if (Physics.Raycast(ray, out hit, dis, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
             targetPoint = hit.point;
             hitNormal = hit.normal;

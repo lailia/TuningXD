@@ -240,12 +240,11 @@ public class WeaponInstance : ItemInstance
             if (CurrentReloadTime > 0f)
             {
                 CurrentReloadTime -= deltaTime;
-
-                if (CurrentReloadTime < 0f)
-                {
-                    FinishReload();
-                    return true;
-                }
+            }
+            else
+            {
+                FinishReload();
+                return true;
             }
         }
 

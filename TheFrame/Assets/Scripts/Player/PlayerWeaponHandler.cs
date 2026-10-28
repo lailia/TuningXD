@@ -13,18 +13,6 @@ public class PlayerWeaponHandler : MonoBehaviour
     //크로스 헤어 컨트롤러
     public CrossHairController crossHairController;
 
-    private void Update()
-    {
-        // 발사 버튼을 누르고 있으면
-        // 틱 계산해서 발사가 된다.
-
-        // 재장전 중일 때만, 재장전이 끝났는지를 체크할 거다.
-        if (weaponController.IsReloading())
-        {
-            CheckReloadIsFinish();
-        }
-    }
-
     //발사 실행
     public bool IsFire()
     {
@@ -40,13 +28,6 @@ public class PlayerWeaponHandler : MonoBehaviour
             playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
 
             return true;
-        }
-        else
-        {
-            if (weaponController.IsAmmoEmpty())
-            {
-                TryReload();
-            }
         }
 
         return false;
@@ -65,7 +46,7 @@ public class PlayerWeaponHandler : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
 
-        if (Physics.Raycast(ray, out hit, shootRange))
+        if (Physics.Raycast(ray, out hit, shootRange, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
             targetPoint = hit.point;
         }
@@ -78,20 +59,26 @@ public class PlayerWeaponHandler : MonoBehaviour
     }
 
     //재장전 시작
-    public void TryReload()
+    public bool TryReload()
     {
         if (weaponController.TryReload())
+        {
             playerScreenEffects.ShowReloadText();
+            return true;
+        }
+        return false;
     }
     
     //재장전 종료
-    void CheckReloadIsFinish() // CheckReloadIsFinish
+    public bool CheckReloadIsFinish()
     {
         if (weaponController.Reloading(Time.deltaTime))
         {
             playerScreenEffects.HideReloadText();      
             playerScreenEffects.UpdateAmmoText(weaponController.weapon.CurrentAmmo);
+            return true;
         }
+        return false;
     }
 
     public void SetWeapon(WeaponInstance weapon)
