@@ -9395,6 +9395,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDetectionZone
   eyeTransform: {fileID: 956007440}
   isTargetInDetectZone: 0
+  targetLastPos: {x: 0, y: 0, z: 0}
   targetHeadTransform: {fileID: 0}
   targetBodyTransform: {fileID: 0}
   detectionCollider: {fileID: 956007439}
@@ -10137,7 +10138,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1062270581}
   m_Layer: 0
-  m_Name: "\u2606\u2606\u2606\uC801 \uACF5\uACA9 \uC0C1\uD0DC \uC81C\uC791"
+  m_Name: "\u2606\u2606\u2606Enemy \uD074\uB798\uC2A4 \uC0C1\uD0DC\uBA38\uC2E0 \uC81C\uC791"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

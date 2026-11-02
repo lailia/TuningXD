@@ -87,11 +87,10 @@ public class WeaponController : MonoBehaviour
     //총알 및 총알 자국 생성
     private void BulletFire(Vector3 hitPos, Vector3 normal)
     {
-        //공통
         if (!normal.Equals(Vector3.zero))
         {
             //총알 자국
-            GameObject bhObj = poolManager.GetObject(bulletHolePrefab);
+            GameObject bhObj = poolManager.GetObject(bulletHolePrefab, out ObjectPool<GameObject> pool1);
             BulletHole bh = bhObj.GetComponent<BulletHole>();
             bh.Init(bulletHolePrefab, poolManager);
             bh.transform.position = hitPos;

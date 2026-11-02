@@ -18,9 +18,9 @@ public class EnemyWeaponHandler : MonoBehaviour
     {
         UpdateAccuracy();
 
-        if(weaponController.IsReloading())
+        if(CheckReloadIsFinish())
         {
-            weaponController.Reloading(Time.deltaTime);
+            IsReload = false;
         }
     }
 
@@ -71,15 +71,13 @@ public class EnemyWeaponHandler : MonoBehaviour
     }
 
     //재장전이 끝났는지 체크
-    public void CheckReloadIsFinish(float deltaTime)
+    public bool CheckReloadIsFinish()
     {
-        if(weaponController.IsReloading())
+        if(weaponController.Reloading(Time.deltaTime))
         {
-            if (weaponController.Reloading(deltaTime))
-            {
-                IsReload = false;
-            }
+            return true;
         }
+        return false;
     }
 
     void UpdateAccuracy()
