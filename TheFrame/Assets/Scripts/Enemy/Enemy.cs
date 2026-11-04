@@ -16,7 +16,6 @@ public enum EnemyState
     alert,                  //경계
     round,                 //순회
     watch,                  //주시
-    movement,               //이동
     attack,                 //공격
     reload,                 //재장전
     tracking,               //추적
@@ -34,6 +33,16 @@ public class Enemy : MonoBehaviour
     //피해감소율
     private float reduce;
 
+    //해당 위치로 이동해야하는지 체크
+    private bool isMoving;
+    //대상을 바라봐야하는지 체크
+    private bool isRotation;
+
+    //회전에 사용될 변수들
+    private float angle = 0f;
+    private Vector3 targetDir = new Vector3();
+    private Quaternion targetRotation = new Quaternion();
+
     //주 무기
     public Weapon weaponData;
 
@@ -44,6 +53,7 @@ public class Enemy : MonoBehaviour
     private EnemyState state;
 
     //상태 시작 확인
+    [SerializeField]
     private bool startState;
 
     //네비메쉬
@@ -58,7 +68,7 @@ public class Enemy : MonoBehaviour
     //무기 핸들러
     public EnemyWeaponHandler enemyWeaponHandler;
 
-    //소리 감지
+    //소리 감지 위치
     public Vector3 noiseHeardPos;
 
     //경계 지속 시간
@@ -71,7 +81,7 @@ public class Enemy : MonoBehaviour
     public bool patrolCheck;
 
     //전투 미션 관련--------------------------------------
-    //마지막 위치
+    //현재 갈 위치
     private Vector3 targetPos;
 
     //적 기능-----------------------------
@@ -95,11 +105,16 @@ public class Enemy : MonoBehaviour
     //테스트용 임의 설정
     public void Init()
     {
-        state = EnemyState.round;
+        state = EnemyState.alert;
 
         patrolPoint = new List<Vector3>();
-        patrolPoint.Add(new Vector3(5f, 0f, 20f));
         patrolPoint.Add(new Vector3(0f, 0f, 20f));
+        patrolPoint.Add(new Vector3(5f, 0f, 20f));
+
+        startState = true;
+
+        //적을 순찰지점 마지막 위치로 이동
+        transform.position = patrolPoint[patrolPoint.Count - 1];
 
         detectionZone.Init(15f);
 
@@ -129,18 +144,20 @@ public class Enemy : MonoBehaviour
         switch (mission)
         {
             case EnemyMission.patrol:
-                if (detectionZone.isTargetDetected)
-                {
-                    mission = EnemyMission.normalBattle;
-                    state = EnemyState.attack;
-                }
+                //if (detectionZone.isTargetDetected)
+                //{
+                //    mission = EnemyMission.normalBattle;
+                //    state = EnemyState.attack;
+                //    startState = true;
+                //}
                 break;
             case EnemyMission.search:
-                if (detectionZone.isTargetDetected)
-                {
-                    mission = EnemyMission.normalBattle;
-                    state = EnemyState.attack;
-                }
+                //if (detectionZone.isTargetDetected)
+                //{
+                //    mission = EnemyMission.normalBattle;
+                //    state = EnemyState.attack;
+                //    startState = true;
+                //}
                 break;
             case EnemyMission.watchGuard:
                 break;
@@ -160,9 +177,6 @@ public class Enemy : MonoBehaviour
             case EnemyState.watch:
                 UpdateWatch();
                 break;
-            case EnemyState.movement:
-                UpdateMovement();
-                break;
             case EnemyState.attack:
                 UpdateAttack();
                 break;
@@ -170,6 +184,7 @@ public class Enemy : MonoBehaviour
                 UpdateReload(Time.deltaTime);
                 break;
             case EnemyState.tracking:
+                UpdateTracking();
                 break;
             case EnemyState.lastLocationWatch:
                 break;
@@ -201,19 +216,60 @@ public class Enemy : MonoBehaviour
     }
 
     //순찰 미션--------------------------------------------------------------------------
-    void UpdateRound()
+    //경계 상태 행동
+    void UpdateAlert()
     {
         if(startState)
         {
-            agent.SetDestination(patrolPoint[patrolIndex]);
-            agent.isStopped = false;
-            ani.SetFloat("Y", 1f);
+            //경계 시간 초기화
+            alertTime = 5f;
+            //이동 멈춤
+            agent.isStopped = true;
+            //이동 애니메이션 멈춤
+            ani.SetFloat("Y", 0f);
+            ani.SetBool("Alert", true);
+            //처음 시작 조건 멈춤
             startState = false;
         }
 
-        //네비메쉬 에이전트가 목표 위치 계산 중인지, 목표 위치가 정해졌는지, 목표 위치와의 거리가 정지 거리보다 작은지 확인
-        if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
+        alertTime -= Time.deltaTime;
+        if (alertTime > 0f)
         {
+            //감각 콜리더 감지 각도 증가
+        }
+        else if (alertTime <= 0f)
+        {
+            //감각 콜리더 감지 각도 원상 복귀
+
+            ani.SetBool("Alert", false);
+            startState = true;
+            switch (mission)
+            {
+                case EnemyMission.patrol:
+                case EnemyMission.search:
+                    mission = EnemyMission.patrol;
+                    state = EnemyState.round;
+                    break;
+                case EnemyMission.watchGuard:
+                    state = EnemyState.watch;
+                    break;
+            }
+        }
+    }
+
+    //순회 상태 행동
+    void UpdateRound()
+    {
+        //시작할 때 한번만 실행이 필요할 때
+        if (startState)
+        {
+            startState = false;
+        }
+
+        //이동 중인지 체크 후 이동이 끝났다면 경계로 변경
+        if (!Movement(patrolPoint[patrolIndex]))
+        {
+            //패트롤 인덱스 변경
             if (patrolIndex == patrolPoint.Count - 1)
                 patrolCheck = true;
             else if (patrolIndex == 0)
@@ -233,75 +289,38 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    //경계 상태 행동
-    void UpdateAlert()
+    //탐색 미션----------------------------------------------------------------------------
+    //주시 상태 행동
+
+    void UpdateWatch()
     {
-        if(startState)
+        //시작 할 때 한번만
+        if (startState)
         {
-            alertTime = 5f;
-            agent.isStopped = true;
-            ani.SetFloat("Y", 0f);
+            ani.SetBool("Alert", false);
             startState = false;
         }
 
-        alertTime -= Time.deltaTime;
-        if (alertTime > 0f)
+        //만약 소리가 들린 방향과 현재 바라보는 방향의 차이가 1도 미만이면 state를 movement로 바꿈
+        if (!TargetRotation(noiseHeardPos))
         {
-            //감각 콜리더 감지 각도 증가
-        }
-        else if (alertTime <= 0f)
-        {
-            //감각 콜리더 감지 각도 원상 복귀
-
             startState = true;
-            switch (mission)
-            {
-                case EnemyMission.patrol:
-                case EnemyMission.search:
-                    mission = EnemyMission.patrol;
-                    state = EnemyState.round;
-                    break;
-                case EnemyMission.watchGuard:
-                    state = EnemyState.watch;
-                    break;
-            }
+            targetPos = noiseHeardPos;
+            state = EnemyState.tracking;
         }
     }
 
-    //탐색 미션----------------------------------------------------------------------------
-    //주시 상태 행동
-    void UpdateWatch()
+    void UpdateTracking()
     {
         if (startState)
         {
-            /////////////////////////////////////////////////////////////스테이트 시작 작성
+            ani.SetBool("Alert", false);
+            startState = false;
         }
 
-        ani.SetFloat("Y", 1f);
-        Vector3 soundDir = noiseHeardPos - transform.position;
-        Quaternion targetRotation = Quaternion.LookRotation(soundDir);
-
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
-
-        float angle = Quaternion.Angle(transform.rotation, targetRotation);
-
-        //만약 소리가 들린 방향과 현재 바라보는 방향의 차이가 1도 미만이면 state를 movement로 바꿈
-        if (angle < 1f)
+        if (!Movement(targetPos))
         {
-            agent.SetDestination(noiseHeardPos);
-            agent.isStopped = false;
-            alertTime = 5f;
-            state = EnemyState.movement;
-        }
-    }
-
-    //이동 상태 행동
-    void UpdateMovement()
-    {
-        if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
-        {
-            agent.isStopped = true;
-            ani.SetFloat("Y", 0f);
+            startState = true;
             state = EnemyState.alert;
         }
     }
@@ -309,28 +328,31 @@ public class Enemy : MonoBehaviour
     //공격 상태 실행
     void UpdateAttack()
     {
+        if(startState)
+        {
+            ani.SetFloat("Y", 0f);
+            ani.SetBool("Alert", false);
+            agent.isStopped = true;
+            startState = false;
+        }
+
         if (detectionZone.isTargetDetected)
         {
-            agent.isStopped = true;
+            //회전이 필요하면 회전
+            TargetRotation(detectionZone.targetTransform.position);
 
-            targetPos = detectionZone.targetTransform.position;
-
-            ani.SetFloat("Y", 0f);
-
-            Vector3 targetPoint = targetPos - transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(targetPoint);
-
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
-
+            //발사가 가능하면 발사
             if (enemyWeaponHandler.Fire(detectionZone.targetTransform.position))
             {
                 ani.SetTrigger("Shoot");
             }
 
+            //재장전이 필요하면 실행
             if (enemyWeaponHandler.IsReload)
             {
                 ani.SetBool("Reloading", true);
                 state = EnemyState.reload;
+                startState = true;
             }
         }
         else
@@ -342,29 +364,95 @@ public class Enemy : MonoBehaviour
     //재장전 상태 실행
     void UpdateReload(float deltaTime)
     {
-        //타겟이 감지된 상태일 때
-        if(detectionZone.isTargetDetected)
+        if(startState)
         {
             //혹시 이동 애니메이션이 실행되고 있었다면 이동 애니메이션 멈춤
             ani.SetFloat("Y", 0f);
+            ani.SetBool("Alert", false);
+            agent.isStopped = true;
+            startState = false;
+        }
 
-            //타겟의 포지션 가져옴
-            Vector3 targetPos = detectionZone.targetTransform.position;
+        //타겟이 감지된 상태일 때
+        if(detectionZone.isTargetDetected)
+        {
+            //회전이 필요하면 회전
+            TargetRotation(detectionZone.targetTransform.position);
 
-            //타겟의 방향
-            Vector3 targetPoint = targetPos - transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(targetPoint);
-
-            //타겟을 바라봄
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
-
-            //재장전 중이 아니라면
+            //재장전이 끝나면
             if (!enemyWeaponHandler.IsReload)
             {
                 ani.SetBool("Reloading", false);
                 state = EnemyState.attack;
+                startState = true;
             }
         }
+    }
+
+    bool Movement(Vector3 pos)
+    {
+        //만약 설정 위치가 있으며 그 위치와 받아온 위치가 다르면 실행
+        if (agent.hasPath && (agent.destination != pos))
+        {
+            isMoving = false;
+        }
+
+        //움직이는 중이 아니라면
+        if(!isMoving)
+        {
+            //위치 설정
+            agent.SetDestination(pos);
+            //멈춤 상태 해제
+            agent.isStopped = false;
+            //이동 애니메이션
+            ani.SetFloat("Y", 1f);
+            isMoving = true;
+        }
+
+        //만약 설정한 위치에 도달했다면
+        if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            //멈춤 상태 설정
+            agent.isStopped = true;
+            isMoving = false;
+            return false;
+        }
+
+        return true;
+    }
+
+    bool TargetRotation(Vector3 pos)
+    {
+        //설정된 회전값과 받아온 회전값이 다르다면
+        if (targetDir != (pos - transform.position))
+        {
+            //받아온 회전값으로 설정
+            targetDir = pos - transform.position;
+            targetRotation = Quaternion.LookRotation(targetDir);
+            //이동 애니메이션 설정
+            ani.SetFloat("Y", 1f);
+            isRotation = true;
+        }
+
+        //만약 회전하는 중이라면
+        if(isRotation)
+        {
+            //오브젝트의 회전값 변경
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 180f * Time.deltaTime);
+
+            //각도 값 계산
+            angle = Quaternion.Angle(transform.rotation, targetRotation);
+        }
+
+        //만약 각도가 1도 이하라면
+        if (angle < 1f)
+        {
+            //이동 애니메이션 멈춤
+            ani.SetFloat("Y", 0f);
+            isRotation = false;
+            return false;
+        }
+        return true;
     }
 
     //소음을 들었을 때 실행
@@ -379,7 +467,7 @@ public class Enemy : MonoBehaviour
         }
 
         agent.isStopped = true;
-        //isNoiseHeard = true;
+        startState = true;
         //소리를 들었을 때 적 유형에 따라 미션 변경
 
         // switch(적 유형)
@@ -387,24 +475,6 @@ public class Enemy : MonoBehaviour
         state = EnemyState.watch;
 
         noiseHeardPos = heardSoundPos;
-    }
-
-    void DetectTarget()
-    {
-        //detectionzone의 isdetect와 battleswitch가 다르면 실행
-        //적을 발견했을 때 한번만 실행할 위치
-        //미션을 적 유형에 따라 배틀로 변경, 상태를 공격으로 변경
-
-        //bission = battle, state = attack
-        //공격 할 적의 위치 받기
-        //공격할 적의 transform, 적이 사라졌을 때의 마지막 위치를 저장할 position
-
-        agent.isStopped = true;
-
-        //switch(적 유형)
-        mission = EnemyMission.normalBattle;
-        state = EnemyState.attack;
-
     }
 
 }

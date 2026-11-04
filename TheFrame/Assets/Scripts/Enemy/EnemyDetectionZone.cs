@@ -59,7 +59,6 @@ public class EnemyDetectionZone : MonoBehaviour
             targetHeadTransform = targetTransform.Find("Head").GetComponent<Transform>();
             targetBodyTransform = targetTransform.Find("Body").GetComponent<Transform>();
             isTargetInDetectZone = true;
-            // enemy.전투 상태 시작(플레이어)
         }
     }
 
