@@ -81,6 +81,8 @@ public class WeaponController : MonoBehaviour
             targetPoint = ray.origin + ray.direction * dis;
         }
 
+        Debug.Log($"hitName : {hit.transform.name}");
+
         BulletFire(targetPoint, hitNormal);
     }
 

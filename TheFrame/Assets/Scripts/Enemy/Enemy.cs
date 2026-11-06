@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEditor.PlayerSettings;
 
 enum EnemyMission
 {
@@ -144,20 +146,13 @@ public class Enemy : MonoBehaviour
         switch (mission)
         {
             case EnemyMission.patrol:
-                //if (detectionZone.isTargetDetected)
-                //{
-                //    mission = EnemyMission.normalBattle;
-                //    state = EnemyState.attack;
-                //    startState = true;
-                //}
-                break;
             case EnemyMission.search:
-                //if (detectionZone.isTargetDetected)
-                //{
-                //    mission = EnemyMission.normalBattle;
-                //    state = EnemyState.attack;
-                //    startState = true;
-                //}
+                if (detectionZone.isTargetDetected)
+                {
+                    mission = EnemyMission.normalBattle;
+                    state = EnemyState.attack;
+                    startState = true;
+                }
                 break;
             case EnemyMission.watchGuard:
                 break;
@@ -247,6 +242,7 @@ public class Enemy : MonoBehaviour
             {
                 case EnemyMission.patrol:
                 case EnemyMission.search:
+                case EnemyMission.normalBattle:
                     mission = EnemyMission.patrol;
                     state = EnemyState.round;
                     break;
@@ -261,13 +257,17 @@ public class Enemy : MonoBehaviour
     void UpdateRound()
     {
         //시작할 때 한번만 실행이 필요할 때
-        if (startState)
-        {
-            startState = false;
-        }
+        //if (startState)
+        //{
+        //    startState = false;
+        //}
+
+        Vector3 nowPatrolPoint = patrolPoint[patrolIndex];
+
+        SetTargetPosition(nowPatrolPoint);
 
         //이동 중인지 체크 후 이동이 끝났다면 경계로 변경
-        if (!Movement(patrolPoint[patrolIndex]))
+        if (CheckArrival(nowPatrolPoint))
         {
             //패트롤 인덱스 변경
             if (patrolIndex == patrolPoint.Count - 1)
@@ -318,7 +318,16 @@ public class Enemy : MonoBehaviour
             startState = false;
         }
 
-        if (!Movement(targetPos))
+        if (detectionZone.isTargetDetected)
+        {
+            startState = true;
+            state = EnemyState.attack;
+            return;
+        }
+
+        SetTargetPosition(targetPos);
+
+        if (CheckArrival(targetPos)) // 추적하다가 '목적지에 도달하면' 경계 상태가 된다.
         {
             startState = true;
             state = EnemyState.alert;
@@ -328,7 +337,7 @@ public class Enemy : MonoBehaviour
     //공격 상태 실행
     void UpdateAttack()
     {
-        if(startState)
+        if (startState)
         {
             ani.SetFloat("Y", 0f);
             ani.SetBool("Alert", false);
@@ -336,91 +345,105 @@ public class Enemy : MonoBehaviour
             startState = false;
         }
 
-        if (detectionZone.isTargetDetected)
+        //만약 타겟 감지가 실패하면
+        if (!detectionZone.isTargetDetected)
         {
-            //회전이 필요하면 회전
-            TargetRotation(detectionZone.targetTransform.position);
-
-            //발사가 가능하면 발사
-            if (enemyWeaponHandler.Fire(detectionZone.targetTransform.position))
-            {
-                ani.SetTrigger("Shoot");
-            }
-
-            //재장전이 필요하면 실행
-            if (enemyWeaponHandler.IsReload)
-            {
-                ani.SetBool("Reloading", true);
-                state = EnemyState.reload;
-                startState = true;
-            }
+            targetPos = detectionZone.targetLastPos;
+            state = EnemyState.tracking;
+            startState = true;
+            return;
         }
-        else
+
+        //회전이 필요하면 회전
+        TargetRotation(detectionZone.targetTransform.position);
+
+        //발사가 가능하면 발사
+        if (enemyWeaponHandler.Fire(detectionZone.targetTransform.position))
         {
-            
+            ani.SetTrigger("Shoot");
+        }
+
+        //재장전이 필요하면 실행
+        if (enemyWeaponHandler.IsReload)
+        {
+            state = EnemyState.reload;
+            startState = true;
         }
     }
 
     //재장전 상태 실행
     void UpdateReload(float deltaTime)
     {
-        if(startState)
+        if (startState)
         {
             //혹시 이동 애니메이션이 실행되고 있었다면 이동 애니메이션 멈춤
             ani.SetFloat("Y", 0f);
             ani.SetBool("Alert", false);
+            ani.SetBool("Reloading", true);
             agent.isStopped = true;
             startState = false;
         }
 
-        //타겟이 감지된 상태일 때
-        if(detectionZone.isTargetDetected)
+        //만약 타겟 감지가 실패하면
+        if (!detectionZone.isTargetDetected)
         {
-            //회전이 필요하면 회전
-            TargetRotation(detectionZone.targetTransform.position);
+            ani.SetBool("Reloading", false);
+            targetPos = detectionZone.targetLastPos;
+            startState = true;
+            state = EnemyState.tracking;
+            return;
+        }
 
-            //재장전이 끝나면
-            if (!enemyWeaponHandler.IsReload)
-            {
-                ani.SetBool("Reloading", false);
-                state = EnemyState.attack;
-                startState = true;
-            }
+        //회전이 필요하면 회전
+        TargetRotation(detectionZone.targetTransform.position);
+
+        //재장전이 끝나면
+        if (!enemyWeaponHandler.IsReload)
+        {
+            ani.SetBool("Reloading", false);
+            startState = true;
+            state = EnemyState.attack;
         }
     }
 
-    bool Movement(Vector3 pos)
+    //목적지를 설정하여 이동하는 함수
+    void SetTargetPosition(Vector3 targetPos)
     {
-        //만약 설정 위치가 있으며 그 위치와 받아온 위치가 다르면 실행
-        if (agent.hasPath && (agent.destination != pos))
+        //만약 설정 위치가 있으며 그 위치와 받아온 위치가 다르면 목적지 재설정
+        if (agent.hasPath && (agent.destination != targetPos))
         {
             isMoving = false;
         }
 
         //움직이는 중이 아니라면
-        if(!isMoving)
+        if (!isMoving)
         {
             //위치 설정
-            agent.SetDestination(pos);
+            agent.SetDestination(targetPos);
             //멈춤 상태 해제
             agent.isStopped = false;
             //이동 애니메이션
             ani.SetFloat("Y", 1f);
             isMoving = true;
         }
+    }
 
+    //설정한 목적지에 도착했는지 확인하는 함수
+    bool CheckArrival(Vector3 pos)
+    {
         //만약 설정한 위치에 도달했다면
         if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= agent.stoppingDistance)
         {
             //멈춤 상태 설정
             agent.isStopped = true;
             isMoving = false;
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
+    //타겟을 바라보도록 회전
     bool TargetRotation(Vector3 pos)
     {
         //설정된 회전값과 받아온 회전값이 다르다면

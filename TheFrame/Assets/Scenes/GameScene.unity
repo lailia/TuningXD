@@ -7359,6 +7359,7 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 5cd8bd0bf60400642afb00726d25d806, type: 2}
   mission: 0
   state: 0
+  startState: 0
   agent: {fileID: 626226172}
   ani: {fileID: 1226136169}
   detectionZone: {fileID: 956007441}
@@ -9336,8 +9337,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 956007440}
-  - component: {fileID: 956007439}
   - component: {fileID: 956007441}
+  - component: {fileID: 956007439}
   m_Layer: 0
   m_Name: DitectionZone
   m_TagString: Untagged

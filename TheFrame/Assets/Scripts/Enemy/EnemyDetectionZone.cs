@@ -5,14 +5,13 @@ public class EnemyDetectionZone : MonoBehaviour
     //눈 위치
     public Transform eyeTransform;
 
-
-    //타겟이 발견됐는지 확인
+    //타겟을 시야로 발견했을 때 확인
     public bool isTargetDetected { get; private set; }
 
     //발견되었던 타겟이 사라졌는지 확인
-    private bool isTargetCheck = false;
+    private bool isTargetLost = false;      //여기 이름 변경하기/////////////////////////////////
 
-    //감지 범위 안에 적이 있는지 확인
+    //감지 범위 안에 적이 있는지만 확인
     [SerializeField]
     private bool isTargetInDetectZone = false;
 
@@ -20,7 +19,7 @@ public class EnemyDetectionZone : MonoBehaviour
     public Vector3 targetLastPos;
 
     //타겟의 transform
-    public Transform targetTransform { get; private set; }
+    public Transform targetTransform;
 
     //타겟의 머리, 몸통 위치
     [SerializeField]
@@ -38,8 +37,6 @@ public class EnemyDetectionZone : MonoBehaviour
 
     private void Update()
     {
-        TargetLastPos();
-
         if (isTargetInDetectZone)
             CheckTargetDetect();
     }
@@ -66,6 +63,11 @@ public class EnemyDetectionZone : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
+            if (isTargetLost)
+            {
+                targetLastPos = targetTransform.position;
+                isTargetLost = false;
+            }
             targetTransform = null;
             targetHeadTransform = null;
             targetBodyTransform = null;
@@ -93,6 +95,17 @@ public class EnemyDetectionZone : MonoBehaviour
             {
                 isTargetDetected = false;
             }
+
+            if (isTargetDetected && !isTargetLost)
+            {
+                isTargetLost = true;
+            }
+            else if (!isTargetDetected && isTargetLost)
+            {
+                targetLastPos = targetTransform.position;
+                isTargetLost = false;
+            }
+
             detectTime = 0.2f;
         }
         else
@@ -116,18 +129,5 @@ public class EnemyDetectionZone : MonoBehaviour
             return hit.transform.tag == "Player";
         }
         return false;
-    }
-
-    public void TargetLastPos()
-    {
-        //타겟를 발견할 때 타겟 체크가 false라면 한번만 타겟 체크 true
-        if (isTargetDetected && !isTargetCheck)
-            isTargetCheck = true;
-
-        //타겟 체크가 true일 때 타겟을 놓치면 targetLastPos 설정
-        if(isTargetCheck && !isTargetDetected)
-        {
-            targetLastPos = targetTransform.position;
-        }
     }
 }

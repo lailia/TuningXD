@@ -176,7 +176,7 @@ public class Player : MonoBehaviour
         this.isAiming = isAiming;
     }
 
-    //재장전 입력이 들어왔는지
+    //재장전 실행
     public void Reload()
     {
         if (playerWeaponHandler.TryReload())
@@ -185,6 +185,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    //사격 실행
     void WeaponFire()
     {
         if (playerWeaponHandler.IsFire())
@@ -193,6 +194,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    //움직일때 실행할 애니메이션
     void MoveAnimation()
     {
         playerAni.SetFloat("X", dir.x);
@@ -207,4 +209,6 @@ public class Player : MonoBehaviour
             playerAni.SetBool("Aiming", true);
         }
     }
+
+    //피격 시스템
 }
