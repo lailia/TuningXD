@@ -25,12 +25,12 @@ public enum EnemyState
     runaway                 //도망
 }
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     //적 스탯-----------------------------
     //HP
-    private float maxHP;
-    private float HP;
+    public float maxHealth;
+    public float currentHealth;
 
     //피해감소율
     private float reduce;
@@ -107,6 +107,8 @@ public class Enemy : MonoBehaviour
     //테스트용 임의 설정
     public void Init()
     {
+        currentHealth = maxHealth;
+
         state = EnemyState.alert;
 
         patrolPoint = new List<Vector3>();
@@ -318,13 +320,6 @@ public class Enemy : MonoBehaviour
             startState = false;
         }
 
-        if (detectionZone.isTargetDetected)
-        {
-            startState = true;
-            state = EnemyState.attack;
-            return;
-        }
-
         SetTargetPosition(targetPos);
 
         if (CheckArrival(targetPos)) // 추적하다가 '목적지에 도달하면' 경계 상태가 된다.
@@ -349,8 +344,9 @@ public class Enemy : MonoBehaviour
         if (!detectionZone.isTargetDetected)
         {
             targetPos = detectionZone.targetLastPos;
-            state = EnemyState.tracking;
             startState = true;
+            mission = EnemyMission.search;
+            state = EnemyState.tracking;
             return;
         }
 
@@ -390,6 +386,7 @@ public class Enemy : MonoBehaviour
             ani.SetBool("Reloading", false);
             targetPos = detectionZone.targetLastPos;
             startState = true;
+            mission = EnemyMission.search;
             state = EnemyState.tracking;
             return;
         }
@@ -481,23 +478,41 @@ public class Enemy : MonoBehaviour
     //소음을 들었을 때 실행
     public void HeardNoise(Vector3 heardSoundPos, noiseType type)
     {
-        switch(type)
+        if(!detectionZone.isTargetDetected)
         {
-            case noiseType.run:
-                break;
-            case noiseType.fire:
-                break;
+            Debug.Log("noTarget");
+            switch (type)
+            {
+                case noiseType.run:
+                    break;
+                case noiseType.fire:
+                    break;
+            }
+
+            agent.isStopped = true;
+            startState = true;
+            //소리를 들었을 때 적 유형에 따라 미션 변경
+
+            // switch(적 유형)
+            mission = EnemyMission.search;
+            state = EnemyState.watch;
         }
 
-        agent.isStopped = true;
-        startState = true;
-        //소리를 들었을 때 적 유형에 따라 미션 변경
-
-        // switch(적 유형)
-        mission = EnemyMission.search;
-        state = EnemyState.watch;
-
         noiseHeardPos = heardSoundPos;
+    }
+
+    //피격 시스템
+    public void TakeDamage(float damage)
+    {
+        float totalDamage = damage - (damage * (reduce / 100f));
+        currentHealth -= totalDamage;
+
+        Debug.Log($"EnemyHit : {totalDamage}");
+        if(currentHealth<=0f)
+        {
+            //사망
+            currentHealth = 0f;
+        }
     }
 
 }

@@ -65,6 +65,7 @@ public class WeaponController : MonoBehaviour
 
         //총구에서 바라본 거리
         float dis = Vector3.Distance(ShootTransform.position, targetPoint);
+        //여기 거리가 문제인거 같음//////////////////////////////////////////////////////
 
         //총구부터 시작하는 레이
         Ray ray = new Ray(ShootTransform.position, fireDir);
@@ -75,13 +76,24 @@ public class WeaponController : MonoBehaviour
         {
             targetPoint = hit.point;
             hitNormal = hit.normal;
+            Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.red,5f);
         }
         else
         {
             targetPoint = ray.origin + ray.direction * dis;
+            Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red,5f);
         }
 
-        Debug.Log($"hitName : {hit.transform.name}");
+        //피격 오브젝트 정보에 따라 피격 이펙트 변경
+        if (hit.transform != null)
+        {
+            IDamageable damageable = hit.transform.GetComponent<IDamageable>();
+
+            if (damageable != null)
+            {
+                damageable.TakeDamage(weapon.FinalDamage());
+            }
+        }
 
         BulletFire(targetPoint, hitNormal);
     }

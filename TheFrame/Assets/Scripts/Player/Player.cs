@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IDamageable
 {
     //방어구
     public ArmorInstance armor;
@@ -13,8 +13,10 @@ public class Player : MonoBehaviour
     //기본 스탯
     //피해 감소
     public float reduce;
+    //최대 체력
+    public float MaxHealth;
     //체력
-    public float health;
+    public float currentHealth;
     //최대 탄약
     public float maxAmmo;
     //기본 속도
@@ -52,6 +54,11 @@ public class Player : MonoBehaviour
     //움직일 속도
     private Vector3 moveInput;
 
+    private void Start()
+    {
+        Init();
+    }
+
     private void Update()
     {
         PlayerMove(dir, isRunning);
@@ -72,6 +79,12 @@ public class Player : MonoBehaviour
     private void LateUpdate()
     {
         PlayerLook(lookDistance);
+    }
+
+    //플레이어 초기화
+    public void Init()
+    {
+        currentHealth = MaxHealth;
     }
 
     //플레이어 이동
@@ -211,4 +224,15 @@ public class Player : MonoBehaviour
     }
 
     //피격 시스템
+    public void TakeDamage(float damage)
+    {
+        float totalDamage = damage - (damage * (reduce / 100f));
+        currentHealth -= totalDamage;
+
+        if (currentHealth<=0f)
+        {
+            //사망
+            currentHealth = 0f;
+        }
+    }
 }

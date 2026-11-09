@@ -6,10 +6,10 @@ public class EnemyDetectionZone : MonoBehaviour
     public Transform eyeTransform;
 
     //타겟을 시야로 발견했을 때 확인
-    public bool isTargetDetected { get; private set; }
+    public bool isTargetDetected;
 
     //발견되었던 타겟이 사라졌는지 확인
-    private bool isTargetLost = false;      //여기 이름 변경하기/////////////////////////////////
+    private bool isTargetLost = true; 
 
     //감지 범위 안에 적이 있는지만 확인
     [SerializeField]
@@ -63,10 +63,10 @@ public class EnemyDetectionZone : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            if (isTargetLost)
+            if (!isTargetLost)
             {
                 targetLastPos = targetTransform.position;
-                isTargetLost = false;
+                isTargetLost = true;
             }
             targetTransform = null;
             targetHeadTransform = null;
@@ -96,14 +96,14 @@ public class EnemyDetectionZone : MonoBehaviour
                 isTargetDetected = false;
             }
 
-            if (isTargetDetected && !isTargetLost)
+            if (isTargetDetected && isTargetLost)
             {
-                isTargetLost = true;
+                isTargetLost = false;
             }
-            else if (!isTargetDetected && isTargetLost)
+            else if (!isTargetDetected && !isTargetLost)
             {
                 targetLastPos = targetTransform.position;
-                isTargetLost = false;
+                isTargetLost = true;
             }
 
             detectTime = 0.2f;
@@ -124,7 +124,11 @@ public class EnemyDetectionZone : MonoBehaviour
     {
         Vector3 direction = target.position - eyeTransform.position;
 
-        if (Physics.Raycast(eyeTransform.position, direction.normalized, out RaycastHit hit))
+        //자기 자신의 Collider 때문에 타겟을 발견 못하는 문제 해결
+        int ignoreLayer = LayerMask.NameToLayer("Enemy");
+        int layerMask = ~(1 << ignoreLayer);
+
+        if (Physics.Raycast(eyeTransform.position, direction.normalized, out RaycastHit hit,detectionCollider.radius,layerMask))
         {
             return hit.transform.tag == "Player";
         }
