@@ -39,12 +39,14 @@ public class PlayerScreenEffects : MonoBehaviour
     //발사 할 때 반동
     public void FireRecoil()
     {
+        //필수
         targetPos += new Vector2(Random.Range(-halfRecoil, halfRecoil), recoil);
     }
 
     //반동 제어
     public void RecoilPivot()
     {
+        //필수
         targetPos = Vector2.Lerp(targetPos, Vector2.zero, 5f * Time.deltaTime);
         currentPos = Vector2.Lerp(currentPos, targetPos, 10f * Time.deltaTime);
 
@@ -55,6 +57,7 @@ public class PlayerScreenEffects : MonoBehaviour
     //무기 변경 시마다 반동 세기 설정
     public void SetRecoil(float recoil)
     {
+        //필수
         this.recoil = recoil / 200f;
         halfRecoil = this.recoil / 2f;
     }
@@ -62,25 +65,29 @@ public class PlayerScreenEffects : MonoBehaviour
     //현재 탄약 텍스트
     public void UpdateAmmoText(float currentAmmo)
     {
+        //선택
         AmmoText.text = $"{currentAmmo}";
     }
 
+    //재장전 시작 시 텍스트
     public void ShowReloadText()
     {
+        //선택
         reloadText.text = $"Reload...";
-        //재장전 시작 시 텍스트
         reloadText.gameObject.SetActive(true);
     }
 
+    //재장전 종료 시 텍스트
     public void HideReloadText()
     {
-        //재장전 완료 시 텍스트
+        //선택
         reloadText.gameObject.SetActive(false);
     }
 
-    //화면 확대, 축소
+    //화면 줌 인, 줌 아웃
     void ChangeFov()
     {
+        //필수
         cinemachineCamera.Lens.FieldOfView =
             Mathf.Lerp(cinemachineCamera.Lens.FieldOfView, currentFov, Time.deltaTime * aimSpeed);
     }
@@ -88,6 +95,7 @@ public class PlayerScreenEffects : MonoBehaviour
     //조준 했는지 체크
     public void CheckAim(bool isAiming)
     {
+        //필수
         currentFov = isAiming ? minFov : maxFov;
     }
 }

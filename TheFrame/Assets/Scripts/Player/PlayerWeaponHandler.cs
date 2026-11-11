@@ -55,7 +55,10 @@ public class PlayerWeaponHandler : MonoBehaviour
             targetPoint = ray.origin + ray.direction * shootRange;
         }
 
-        weaponController.Shoot(targetPoint);
+        //공격자 포지션
+        Vector3 attackerPos = GetComponentInParent<Transform>().position;
+
+        weaponController.Shoot(targetPoint, attackerPos);
     }
 
     //재장전 시작

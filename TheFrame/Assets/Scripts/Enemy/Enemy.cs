@@ -16,13 +16,14 @@ enum EnemyMission
 public enum EnemyState
 {
     alert,                  //경계
-    round,                 //순회
+    round,                  //순회
     watch,                  //주시
     attack,                 //공격
     reload,                 //재장전
     tracking,               //추적
     lastLocationWatch,      //마지막 위치 주시
-    runaway                 //도망
+    runaway,                //도망
+    dead                    //사망
 }
 
 public class Enemy : MonoBehaviour, IDamageable
@@ -39,6 +40,8 @@ public class Enemy : MonoBehaviour, IDamageable
     private bool isMoving;
     //대상을 바라봐야하는지 체크
     private bool isRotation;
+    //죽었는지 체크
+    private bool isDead;
 
     //회전에 사용될 변수들
     private float angle = 0f;
@@ -69,9 +72,6 @@ public class Enemy : MonoBehaviour, IDamageable
 
     //무기 핸들러
     public EnemyWeaponHandler enemyWeaponHandler;
-
-    //소리 감지 위치
-    public Vector3 noiseHeardPos;
 
     //경계 지속 시간
     private float alertTime = 5f;
@@ -145,6 +145,9 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (isDead)
+            return;
+
         switch (mission)
         {
             case EnemyMission.patrol:
@@ -184,6 +187,9 @@ public class Enemy : MonoBehaviour, IDamageable
                 UpdateTracking();
                 break;
             case EnemyState.lastLocationWatch:
+                break;
+            case EnemyState.dead:
+                Dead();
                 break;
         }
 
@@ -304,10 +310,9 @@ public class Enemy : MonoBehaviour, IDamageable
         }
 
         //만약 소리가 들린 방향과 현재 바라보는 방향의 차이가 1도 미만이면 state를 movement로 바꿈
-        if (!TargetRotation(noiseHeardPos))
+        if (!TargetRotation(targetPos))
         {
             startState = true;
-            targetPos = noiseHeardPos;
             state = EnemyState.tracking;
         }
     }
@@ -326,6 +331,7 @@ public class Enemy : MonoBehaviour, IDamageable
         {
             startState = true;
             state = EnemyState.alert;
+
         }
     }
 
@@ -400,6 +406,19 @@ public class Enemy : MonoBehaviour, IDamageable
             ani.SetBool("Reloading", false);
             startState = true;
             state = EnemyState.attack;
+        }
+    }
+
+    //죽었을 때 실행
+    void Dead()
+    {
+        if(!isDead)
+        {
+            GetComponent<Collider>().enabled = false;
+            detectionZone.enabled = false;
+            agent.enabled = false;
+            ani.SetBool("Dead", true);
+            isDead = true;
         }
     }
 
@@ -480,7 +499,6 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         if(!detectionZone.isTargetDetected)
         {
-            Debug.Log("noTarget");
             switch (type)
             {
                 case noiseType.run:
@@ -498,20 +516,20 @@ public class Enemy : MonoBehaviour, IDamageable
             state = EnemyState.watch;
         }
 
-        noiseHeardPos = heardSoundPos;
+        targetPos = heardSoundPos;
     }
 
     //피격 시스템
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
-        float totalDamage = damage - (damage * (reduce / 100f));
+        float totalDamage = damageInfo.damage - (damageInfo.damage * (reduce * 0.01f));
         currentHealth -= totalDamage;
 
-        Debug.Log($"EnemyHit : {totalDamage}");
         if(currentHealth<=0f)
         {
             //사망
             currentHealth = 0f;
+            state = EnemyState.dead;
         }
     }
 

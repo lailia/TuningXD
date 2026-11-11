@@ -224,9 +224,9 @@ public class Player : MonoBehaviour, IDamageable
     }
 
     //피격 시스템
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
-        float totalDamage = damage - (damage * (reduce / 100f));
+        float totalDamage = damageInfo.damage - (damageInfo.damage * (reduce / 100f));
         currentHealth -= totalDamage;
 
         if (currentHealth<=0f)

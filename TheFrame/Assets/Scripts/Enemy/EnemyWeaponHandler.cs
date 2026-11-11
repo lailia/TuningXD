@@ -60,14 +60,17 @@ public class EnemyWeaponHandler : MonoBehaviour
 
     // 여기부터 시작-------------------------------------------------------------------
     void Shoot(Vector3 targetPos)
-    {
+    { 
+        //공격자 포지션
+        Vector3 attackerPos = GetComponentInParent<Transform>().position;
+
         //적의 명중률
         Vector2 circle = Random.insideUnitCircle * currentAccuracy;
         //타겟의 위치에 좌우위아래 랜덤한 원형 범위 추가
         Vector3 targetPoint =
             new Vector3((targetPos.x + circle.x), (targetPos.y + circle.y), targetPos.z);
 
-        weaponController.Shoot(targetPoint);
+        weaponController.Shoot(targetPoint, attackerPos);
     }
 
     //재장전이 끝났는지 체크

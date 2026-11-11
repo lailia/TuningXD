@@ -45,7 +45,7 @@ public class WeaponController : MonoBehaviour
     }
 
     //발사
-    public void Shoot(Vector3 targetPoint)
+    public void Shoot(Vector3 targetPoint,Vector3 attackerPos)
     {
         muzzleFlash.Play();
 
@@ -64,7 +64,7 @@ public class WeaponController : MonoBehaviour
         Vector3 fireDir = Quaternion.AngleAxis(clampedAngle, axis) * ShootTransform.forward;
 
         //총구에서 바라본 거리
-        float dis = Vector3.Distance(ShootTransform.position, targetPoint);
+        float dis = weapon.FinalRange();
         //여기 거리가 문제인거 같음//////////////////////////////////////////////////////
 
         //총구부터 시작하는 레이
@@ -76,12 +76,10 @@ public class WeaponController : MonoBehaviour
         {
             targetPoint = hit.point;
             hitNormal = hit.normal;
-            Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.red,5f);
         }
         else
         {
             targetPoint = ray.origin + ray.direction * dis;
-            Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red,5f);
         }
 
         //피격 오브젝트 정보에 따라 피격 이펙트 변경
@@ -91,7 +89,8 @@ public class WeaponController : MonoBehaviour
 
             if (damageable != null)
             {
-                damageable.TakeDamage(weapon.FinalDamage());
+                DamageInfo damageInfo = new DamageInfo(weapon.FinalDamage(), attackerPos);
+                damageable.TakeDamage(damageInfo);
             }
         }
 
