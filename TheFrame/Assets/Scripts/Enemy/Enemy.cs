@@ -70,6 +70,9 @@ public class Enemy : MonoBehaviour, IDamageable
     //감각 범위
     public EnemyDetectionZone detectionZone;
 
+    //감각 거리
+    public float detectRadius;
+
     //무기 핸들러
     public EnemyWeaponHandler enemyWeaponHandler;
 
@@ -120,7 +123,7 @@ public class Enemy : MonoBehaviour, IDamageable
         //적을 순찰지점 마지막 위치로 이동
         transform.position = patrolPoint[patrolPoint.Count - 1];
 
-        detectionZone.Init(15f);
+        detectionZone.Init(detectRadius);
 
         WeaponInstance weapon = new WeaponInstance(weaponData);
         weapon.Init();
@@ -524,6 +527,9 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         float totalDamage = damageInfo.damage - (damageInfo.damage * (reduce * 0.01f));
         currentHealth -= totalDamage;
+
+        //적이 감지되지 않았다면 공격을 막아줄 엄폐물로 이동
+        
 
         if(currentHealth<=0f)
         {

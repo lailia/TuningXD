@@ -192,6 +192,12 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
+  - m_Name: Prone
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: LegsLayer
@@ -1034,7 +1040,7 @@ AnimatorStateMachine:
     m_Position: {x: 150, y: 230, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -3035893863685562929}
-    m_Position: {x: 160, y: 110, z: 0}
+    m_Position: {x: 40, y: -30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 9063182008143599340}
     m_Position: {x: 373.24228, y: 367.62683, z: 0}
