@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.PlayerSettings;
 
 enum EnemyMission
 {
@@ -75,6 +73,13 @@ public class Enemy : MonoBehaviour, IDamageable
 
     //무기 핸들러
     public EnemyWeaponHandler enemyWeaponHandler;
+
+    //엄폐 AI
+    public EnemyCoverAI enemyCoverAI;
+
+    //엄폐 포인트 정보
+    [SerializeField]
+    private CoverPoint coverPoint;
 
     //경계 지속 시간
     private float alertTime = 5f;
@@ -249,6 +254,11 @@ public class Enemy : MonoBehaviour, IDamageable
 
             ani.SetBool("Alert", false);
             startState = true;
+            if(coverPoint!=null)
+            {
+                coverPoint.ReleaseOccupied();
+                coverPoint = null;
+            }
             switch (mission)
             {
                 case EnemyMission.patrol:
@@ -334,7 +344,6 @@ public class Enemy : MonoBehaviour, IDamageable
         {
             startState = true;
             state = EnemyState.alert;
-
         }
     }
 
@@ -528,15 +537,37 @@ public class Enemy : MonoBehaviour, IDamageable
         float totalDamage = damageInfo.damage - (damageInfo.damage * (reduce * 0.01f));
         currentHealth -= totalDamage;
 
-        //적이 감지되지 않았다면 공격을 막아줄 엄폐물로 이동
-        
+        if (!(mission == EnemyMission.normalBattle))
+        {
+            if (coverPoint != null)
+            {
+                coverPoint.ReleaseOccupied();
+                coverPoint = null;
+            }
 
-        if(currentHealth<=0f)
+            //적이 감지되지 않았다면 공격을 막아줄 엄폐물로 이동
+            coverPoint = enemyCoverAI.FindCover(
+                detectRadius,
+                damageInfo.attackerPosition);
+
+            targetPos = coverPoint.CoverPosition;
+
+            startState = true;
+
+            mission = EnemyMission.search;
+            state = EnemyState.tracking;
+        }
+
+        if (currentHealth <= 0f)
         {
             //사망
             currentHealth = 0f;
+            if (coverPoint != null)
+            {
+                coverPoint.ReleaseOccupied();
+                coverPoint = null;
+            }
             state = EnemyState.dead;
         }
     }
-
 }

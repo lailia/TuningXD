@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CoverObject : MonoBehaviour
 {
-    public Transform[] coverPoints;
+    public CoverPoint[] coverPoints;
 
     private void OnDrawGizmos()
     {
@@ -11,12 +11,12 @@ public class CoverObject : MonoBehaviour
 
         Gizmos.color = Color.green;
 
-        foreach(Transform point in coverPoints)
+        foreach(CoverPoint point in coverPoints)
         {
             if (point == null)
                 return;
 
-            Gizmos.DrawSphere(point.position, 0.2f);
+            Gizmos.DrawSphere(point.CoverPosition, 0.2f);
         }
     }
 }
